@@ -34,12 +34,13 @@ export const replacePlaceholder = (contentState, placeholders = [], char) => {
 
   // data did not change
   if (!newData) return { char };
-  // I think the contentState does not need to be returned
+
+  // I think the contentState does not need to be returned because entityMap is not immutable
   contentState.mergeEntityData(key, { placeholder: { newData } });
   return { char, replaced: { key, newData } };
 };
 
-export const replacePlaceholders = (editorState, placeholders= []) => {
+export const replacePlaceholders = (editorState, placeholders = []) => {
   const contentState = editorState.getCurrentContent();
   const blockMap = contentState.getBlockMap();
   const newBlocks = blockMap.map(block => {
