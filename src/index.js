@@ -140,7 +140,7 @@ export const PlaceholderDecorator = props => {
   return (
     <span
       style={{
-        backgroundColor: '#4e4eff',
+        backgroundColor: '#0095ff',
         color: '#fff',
         borderRadius: '5px',
         padding: '2px',

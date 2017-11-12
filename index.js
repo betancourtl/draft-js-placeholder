@@ -118,15 +118,20 @@ class MyEditor extends React.Component {
           />
         </div>
         }
-        <div
-          className="editor"
-          onClick={this.focus}
-        >
-          <Editor
-            ref={this.setDomEditorRef}
-            editorState={this.state.editorState}
-            onChange={this.onChange}
-          />
+        <div className="editor-wrapper">
+          <div>
+            <h2 className="editor-header">Editor {this.props.editorKey}</h2>
+            <div
+              className="editor"
+              onClick={this.focus}
+            >
+              <Editor
+                ref={this.setDomEditorRef}
+                editorState={this.state.editorState}
+                onChange={this.onChange}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -228,6 +233,27 @@ class App extends React.Component {
             isActive={this.state.activeEditor === 2}
             editorState={editorState2}
             placeholders={placeholders2}
+          />
+          <MyEditor
+            editorKey={3}
+            setActiveEditor={this.setActiveEditor(3)}
+            isActive={this.state.activeEditor === 3}
+            editorState={editorState1}
+            placeholders={placeholders1}
+          />
+          <MyEditor
+            editorKey={4}
+            setActiveEditor={this.setActiveEditor(4)}
+            isActive={this.state.activeEditor === 4}
+            editorState={editorState2}
+            placeholders={placeholders2}
+          />
+          <MyEditor
+            editorKey={5}
+            setActiveEditor={this.setActiveEditor(5)}
+            isActive={this.state.activeEditor === 5}
+            editorState={editorState1}
+            placeholders={placeholders1}
           />
         </div>
       </div>

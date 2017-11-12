@@ -11,7 +11,7 @@ body {
   flex: 1 1 auto;
   margin-left: 270px;
   margin-right: 20px;
-  margin-top: 40px;
+  margin-top: 10px;
 }
 
 .sidebar {
@@ -63,4 +63,16 @@ body {
   border: 1px solid #ccc;
   background: #fff;
   padding: 5px;
+}
+
+.editor-header {
+  background: #0095ff;
+  color: #fff;
+  padding: 10px;
+  margin: 0;
+}
+
+.editor-wrapper {
+  margin-bottom: 20px;
+  box-shadow: 0 5px 8px #505050;
 }
