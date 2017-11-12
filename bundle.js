@@ -136,8 +136,8 @@
 	      var placeholders = oldPlaceholders.filter(function (x) {
 	        return x.name !== name;
 	      });
-
-	      _this.setState({ placeholders: placeholders });
+	      var editorState = (0, _src.removePlaceholderEntities)(_this.state.editorState, name);
+	      _this.setState({ placeholders: placeholders, editorState: editorState });
 	    };
 
 	    _this.updatePlaceholder = function (index) {
@@ -41317,7 +41317,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.mergePlaceholdersWithExisting = exports.findAllPlaceholders = exports.findBlockPlaceholders = exports.findPlaceholderStrategy = exports.applyPlaceholderEntityToSelection = exports.PlaceholderDecorator = exports.replacePlaceholders = exports.findPlaceholderRanges = exports.replacePlaceholder = exports.createPlaceholder = exports.createPlaceholderEntity = exports.logRaw = undefined;
+	exports.removePlaceholderEntities = exports.mergePlaceholdersWithExisting = exports.findAllPlaceholders = exports.findBlockPlaceholders = exports.findPlaceholderStrategy = exports.applyPlaceholderEntityToSelection = exports.PlaceholderDecorator = exports.replacePlaceholders = exports.findPlaceholderRanges = exports.replacePlaceholder = exports.createPlaceholder = exports.createPlaceholderEntity = exports.logRaw = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -41614,7 +41614,38 @@
 	  }, placeholders);
 	};
 
-	var removeMentionsWithName = function removeMentionsWithName(name, editorState) {};
+	var removePlaceholderEntities = exports.removePlaceholderEntities = function removePlaceholderEntities(editorState, name) {
+	  var contentState = editorState.getCurrentContent();
+	  var blockMap = contentState.getBlockMap();
+	  var newBlocks = blockMap.map(function (block) {
+	    var sliceStart = 0;
+	    var sliceEnd = block.getLength();
+
+	    // Get the characters of the current block
+	    var chars = block.getCharacterList();
+	    var currentChar = void 0;
+	    while (sliceStart < sliceEnd) {
+	      currentChar = chars.get(sliceStart);
+	      // returns the new character
+	      // returns a key only if the data was updated.
+	      var entityKey = currentChar.getEntity();
+	      var entityExists = entityKey && contentState.getEntity(entityKey).getData()[PLACEHOLDER_TYPE].name === name;
+	      console.log('entityExists :\n', entityExists);
+	      var char = entityExists ? _draftJs.CharacterMetadata.applyEntity(currentChar, null) : currentChar;
+	      chars = chars.set(sliceStart, char);
+	      sliceStart += 1;
+	    }
+
+	    return block.set('characterList', chars);
+	  });
+
+	  var newContentState = contentState.merge({
+	    blockMap: blockMap.merge(newBlocks)
+	  });
+
+	  var newEditorState = _draftJs.EditorState.push(editorState, newContentState, 'apply-entity');
+	  return _draftJs.EditorState.set(newEditorState, { forceSelection: false });
+	};
 
 /***/ },
 /* 326 */
