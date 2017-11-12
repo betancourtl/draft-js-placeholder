@@ -75,8 +75,6 @@
 
 	var _PlaceholderDashboard2 = _interopRequireDefault(_PlaceholderDashboard);
 
-	var _index = __webpack_require__(325);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -93,10 +91,11 @@
 	var chance = (0, _src.createPlaceholderEntity)(initialPlaceholders[0]);
 	var product = (0, _src.createPlaceholderEntity)(initialPlaceholders[1]);
 	var goal = (0, _src.createPlaceholderEntity)(initialPlaceholders[2]);
+	var existing = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
 
 	var compositeDecorator = new _draftJs.CompositeDecorator([{
-	  strategy: _index.findPlaceholderStrategy,
-	  component: _index.PlaceholderDecorator
+	  strategy: _src.findPlaceholderStrategy,
+	  component: _src.PlaceholderDecorator
 	}]);
 
 	var MyEditor = function (_React$Component) {
@@ -106,10 +105,6 @@
 	    _classCallCheck(this, MyEditor);
 
 	    var _this = _possibleConstructorReturn(this, (MyEditor.__proto__ || Object.getPrototypeOf(MyEditor)).call(this));
-
-	    _this.getEditorState = function () {
-	      return _this.state.editorState;
-	    };
 
 	    _this.replaceEntities = function () {
 	      _this.setState({
@@ -159,7 +154,7 @@
 	      _this.setState({ editorState: newEditorState }, _this.replaceEntities);
 	    };
 
-	    var initialEditorState = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).toEditorState(compositeDecorator);
+	    var initialEditorState = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('x').addEntity(existing, 0, 3).toEditorState(compositeDecorator);
 
 	    _this.state = {
 	      editorState: initialEditorState,
@@ -176,10 +171,16 @@
 	  }
 
 	  _createClass(MyEditor, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      var placeholders = (0, _src.mergePlaceholdersWithExisting)(this.state.editorState, initialPlaceholders);
+
+	      this.setState({ placeholders: placeholders }, this.replaceEntities);
+	    }
+	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      this.domEditor.focus();
-	      this.replaceEntities();
 	    }
 	  }, {
 	    key: 'render',
@@ -189,6 +190,11 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
+	        _react2.default.createElement(
+	          'h3',
+	          null,
+	          'Finds placeholders in the editorState when the component mounts and then merges them with the new ones that came down as props'
+	        ),
 	        _react2.default.createElement(_PlaceholderDashboard2.default, {
 	          placeholders: this.state.placeholders,
 	          onChange: this.updatePlaceholder,
@@ -202,7 +208,7 @@
 	          {
 	            style: { marginTop: '40px', border: '1px solid #ccc', background: 'white' },
 	            onDoubleClick: function onDoubleClick() {
-	              return (0, _index.logRaw)(_this2.state.editorState);
+	              return (0, _src.logRaw)(_this2.state.editorState);
 	            },
 	            onClick: this.focus
 	          },
@@ -41311,7 +41317,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.findPlaceholderStrategy = exports.applyPlaceholderEntityToSelection = exports.PlaceholderDecorator = exports.replacePlaceholders = exports.findPlaceholderRanges = exports.replacePlaceholder = exports.createPlaceholder = exports.createPlaceholderEntity = exports.logRaw = undefined;
+	exports.mergePlaceholdersWithExisting = exports.findAllPlaceholders = exports.findBlockPlaceholders = exports.findPlaceholderStrategy = exports.applyPlaceholderEntityToSelection = exports.PlaceholderDecorator = exports.replacePlaceholders = exports.findPlaceholderRanges = exports.replacePlaceholder = exports.createPlaceholder = exports.createPlaceholderEntity = exports.logRaw = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -41516,7 +41522,8 @@
 	    return _draftJs.EditorState.forceSelection(editorState1, collapsedSelection);
 	  }
 
-	  var entityKey = block.getEntityAt(startOffset);
+	  var entityKey = block.getEntityAt(startOffset) || startOffset !== 0 && block.getEntityAt(startOffset - 1);
+
 	  if (!entityKey) {
 	    console.log('not entity exists');
 	    return _draftJs.EditorState.push(editorState, _draftJs.Modifier.applyEntity(newContentState, selection, key), 'apply-entity');
@@ -41564,6 +41571,50 @@
 	    return contentState.getEntity(entityKey).getType() === PLACEHOLDER_TYPE;
 	  }, callback);
 	};
+
+	var findBlockPlaceholders = exports.findBlockPlaceholders = function findBlockPlaceholders(contentState) {
+	  return function (acc, block) {
+	    var placeholders = {};
+	    var key = null;
+	    block.findEntityRanges(function (char) {
+	      var entityKey = char.getEntity();
+	      if (!entityKey) return false;
+	      key = entityKey;
+	      return contentState.getEntity(entityKey).getType() === PLACEHOLDER_TYPE;
+	    }, function () {
+	      var placeholderData = contentState.getEntity(key).getData()[PLACEHOLDER_TYPE];
+	      placeholders[placeholderData.name] = placeholderData;
+	    });
+
+	    return _extends({}, acc, placeholders);
+	  };
+	};
+
+	var findAllPlaceholders = exports.findAllPlaceholders = function findAllPlaceholders(editorState) {
+	  var contentState = editorState.getCurrentContent();
+	  var reduceFn = findBlockPlaceholders(contentState);
+
+	  var placeholders = contentState.getBlockMap().reduce(reduceFn, {});
+
+	  return Object.keys(placeholders).map(function (key) {
+	    return placeholders[key];
+	  });
+	};
+
+	var mergePlaceholdersWithExisting = exports.mergePlaceholdersWithExisting = function mergePlaceholdersWithExisting(editorState, placeholders) {
+	  var existing = findAllPlaceholders(editorState);
+
+	  return existing.reduce(function (acc, val) {
+	    var exists = acc.find(function (_ref3) {
+	      var name = _ref3.name;
+	      return name === val.name;
+	    });
+	    if (exists) return acc;
+	    return acc.concat(val);
+	  }, placeholders);
+	};
+
+	var removeMentionsWithName = function removeMentionsWithName(name, editorState) {};
 
 /***/ },
 /* 326 */
