@@ -3,24 +3,38 @@ import './styles.css';
 
 const Placeholder = props => {
   return (
-    <div>
-      <input
-        type="text"
-        defaultValue={props.name}
-        disabled
-      />
-      <input
-        type="text"
-        onChange={e => props.onChange(e.target.value)}
-        onKeyDown={e => e.keyCode === 13 && props.onEnter()}
-        value={props.value}
-      />
-      <button onClick={() => props.applyPlaceholder(props.name, props.value)}>
-        Add
-      </button>
-      <button onClick={() => props.removePlaceholder(props.name)}>
-        Remove
-      </button>
+    <div className="input-group">
+      <div className="input-control">
+        <label>name:</label>
+        <input
+          type="text"
+          defaultValue={props.name}
+          disabled
+        />
+      </div>
+      <div className="input-control">
+        <label>value:</label>
+        <input
+          type="text"
+          onChange={e => props.onChange(e.target.value)}
+          onKeyDown={e => e.keyCode === 13 && props.onEnter()}
+          value={props.value}
+        />
+      </div>
+      <div className="button-group">
+        <button
+          className="button-add"
+          onClick={() => props.applyPlaceholder(props.name, props.value)}
+        >
+          Add
+        </button>
+        <button
+          className="button-remove"
+          onClick={() => props.removePlaceholder(props.name)}
+        >
+          Remove
+        </button>
+      </div>
     </div>
   );
 };
@@ -37,6 +51,24 @@ class PlaceholderDashboard extends React.Component {
     const { placeholders } = this.props;
     return (
       <div className="placeholder-dashboard">
+        <div className="input-group">
+          <label>Add Placeholder</label>
+          <input
+            type="text"
+            value={this.state.value}
+            onChange={e => this.setState({ name: e.target.value })}
+            onKeyDown={
+              e => e.keyCode === 13 && this.props.addPlaceholder(this.state.name)}
+          />
+          <div className="button-group">
+            <button
+              className="button-add"
+              onClick={() => this.props.addPlaceholder(this.state.name)}
+            >
+              Add
+            </button>
+          </div>
+        </div>
         {
           placeholders.map((item, i) => {
             return (
@@ -52,19 +84,6 @@ class PlaceholderDashboard extends React.Component {
             );
           })
         }
-        <div>
-          <input
-            type="text"
-            value={this.state.value}
-            onChange={e => this.setState({ name: e.target.value })}
-            onKeyDown={e => e.keyCode === 13 && this.props.addPlaceholder(this.state.name)}
-          />
-          <button
-            onClick={() => this.props.addPlaceholder(this.state.name)}
-          >
-            Add Placeholder
-          </button>
-        </div>
       </div>
     );
   }

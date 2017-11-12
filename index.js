@@ -22,6 +22,7 @@ const initialPlaceholders = [
   createPlaceholder('product', 'Garcinia Extreme'),
   createPlaceholder('goal', 'loosing weight'),
 ];
+import './styles.css';
 
 const chance = createPlaceholderEntity(initialPlaceholders[0]);
 const product = createPlaceholderEntity(initialPlaceholders[1]);
@@ -133,32 +134,32 @@ class MyEditor extends React.Component {
 
   render() {
     return (
-      <div>
-        <button onClick={this.toggleDecorators}>
-          Toggle Decorator {this.state.decoratorOn ? 'on' : 'off'}
-        </button>
-        <h3>
-          Finds placeholders in the editorState when the component mounts and then
-          merges them with the new ones that came down as props
-        </h3>
-        <PlaceholderDashboard
-          placeholders={this.state.placeholders}
-          onChange={this.updatePlaceholder}
-          replaceEntities={this.replaceEntities}
-          addPlaceholder={this.addPlaceholder}
-          removePlaceholder={this.removePlaceholder}
-          applyPlaceholder={this.applyPlaceholder}
-        />
+      <div className="wrapper">
+        <div className="sidebar">
+          <button onClick={this.toggleDecorators}>
+            Toggle Decorator {this.state.decoratorOn ? 'on' : 'off'}
+          </button>
+          <PlaceholderDashboard
+            placeholders={this.state.placeholders}
+            onChange={this.updatePlaceholder}
+            replaceEntities={this.replaceEntities}
+            addPlaceholder={this.addPlaceholder}
+            removePlaceholder={this.removePlaceholder}
+            applyPlaceholder={this.applyPlaceholder}
+          />
+        </div>
         <div
-          style={{ marginTop: '40px', border: '1px solid #ccc', background: 'white' }}
+          className="content"
           onDoubleClick={() => logRaw(this.state.editorState)}
           onClick={this.focus}
         >
-          <Editor
-            ref={this.setDomEditorRef}
-            editorState={this.state.editorState}
-            onChange={this.onChange}
-          />
+          <div className="editor">
+            <Editor
+              ref={this.setDomEditorRef}
+              editorState={this.state.editorState}
+              onChange={this.onChange}
+            />
+          </div>
         </div>
       </div>
     );
