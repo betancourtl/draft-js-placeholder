@@ -1,5 +1,9 @@
+import React from 'react';
 import { EditorState, convertToRaw, Modifier, SelectionState } from 'draft-js';
 import getRangesForDraftEntity from 'draft-js/lib/getRangesForDraftEntity';
+
+// TODO: [] create a decorator component
+// TODO: [] create a placeholder interface
 
 const PLACEHOLDER_TYPE = 'placeholder';
 const PLACEHOLDER_MUTABILITY = 'IMMUTABLE';
@@ -22,7 +26,11 @@ export const createPlaceholder = (name, value) => ({
   value,
 });
 
-export const replacePlaceholder = (contentState, placeholders = [], char) => {
+export const replacePlaceholder = (
+  contentState,
+  placeholders = [],
+  char,
+) => {
   const key = char.getEntity();
 
   // no entityKey exist
@@ -36,7 +44,7 @@ export const replacePlaceholder = (contentState, placeholders = [], char) => {
   if (!newData) return { char };
 
   // I think the contentState does not need to be returned because entityMap is not immutable
-  contentState.mergeEntityData(key, { placeholder: { newData } });
+  contentState.mergeEntityData(key, { placeholder: { ...newData } });
   return { char, replaced: { key, newData } };
 };
 
@@ -99,5 +107,37 @@ export const replacePlaceholders = (editorState, placeholders = []) => {
     blockMap: blockMap.merge(newBlocks),
   });
 
-  return EditorState.push(editorState, newContentState, 'change-inline-style');
+  return EditorState.push(editorState, newContentState, 'apply-entity');
 };
+
+export const PlaceholderDecorator = props => {
+  return (
+    <span
+      style={{
+        backgroundColor: '#4e4eff',
+        color: '#fff',
+        borderRadius: '5px',
+        padding: '2px',
+        margin: '3px',
+        display: 'inline-block',
+      }}
+    >
+      {props.children}
+    </span>
+  );
+};
+
+export const findPlaceholderStrategy = (contentBlock, callback, contentState) => {
+  contentBlock.findEntityRanges(
+    character => {
+      const entityKey = character.getEntity();
+      if (!entityKey) {
+        return false;
+      }
+
+      return contentState.getEntity(entityKey).getType() === PLACEHOLDER_TYPE;
+    },
+    callback,
+  );
+};
+
