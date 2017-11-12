@@ -4,7 +4,6 @@
 
 body {
   margin: 0;
-  background: #8d8d8d;
 }
 
 .content {
@@ -22,8 +21,6 @@ body {
   z-index: 2;
   top: 0;
   left: 0;
-  background: #0095ff;
-  color: #fff;
   height: 100vh;
   overflow-y: scroll;
 }
@@ -58,23 +55,20 @@ body {
   margin: 5px 2px;
   padding: 5px;
   border: none;
-  border-radius: 5px;
 }
 
 .editor {
-  border: 1px solid #ccc;
   background: #fff;
   padding: 5px;
 }
 
 .editor-header {
-  background: #0095ff;
-  color: #fff;
+  color: #333;
   padding: 10px;
   margin: 0;
 }
 
 .editor-wrapper {
   margin-bottom: 20px;
-  box-shadow: 0 5px 8px #505050;
+  box-shadow: 0 2px 8px #888;
 }

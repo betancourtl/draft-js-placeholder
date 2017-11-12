@@ -140,12 +140,12 @@ export const PlaceholderDecorator = props => {
   return (
     <span
       style={{
-        backgroundColor: '#0095ff',
+        backgroundColor: 'rgba(0, 150, 255, 0.8)',
         color: '#fff',
-        borderRadius: '5px',
         padding: '2px',
         margin: '3px',
         display: 'inline-block',
+        border: '1px solid rgba(10, 98, 160, 0.8)',
       }}
     >
       {props.children}
