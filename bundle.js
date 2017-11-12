@@ -200,7 +200,7 @@
 	        _react2.default.createElement(
 	          'div',
 	          {
-	            style: { marginTop: '40px' },
+	            style: { marginTop: '40px', border: '1px solid #ccc', background: 'white' },
 	            onDoubleClick: function onDoubleClick() {
 	              return (0, _index.logRaw)(_this2.state.editorState);
 	            },
@@ -41321,6 +41321,10 @@
 
 	var _draftJs = __webpack_require__(186);
 
+	var _getRangesForDraftEntity = __webpack_require__(201);
+
+	var _getRangesForDraftEntity2 = _interopRequireDefault(_getRangesForDraftEntity);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -41485,6 +41489,9 @@
 	var applyPlaceholderEntityToSelection = exports.applyPlaceholderEntityToSelection = function applyPlaceholderEntityToSelection(name, value, editorState) {
 	  var contentState = editorState.getCurrentContent();
 	  var selection = editorState.getSelection();
+	  var startOffset = selection.getStartOffset();
+	  var startKey = selection.getStartKey();
+	  var block = contentState.getBlockForKey(startKey);
 
 	  var _createPlaceholderEnt = createPlaceholderEntity(createPlaceholder(name, value)),
 	      type = _createPlaceholderEnt.type,
@@ -41493,6 +41500,57 @@
 
 	  var newContentState = contentState.createEntity(type, mutability, data);
 	  var key = newContentState.getLastCreatedEntityKey();
+
+	  // if selection is collapsed
+	  if (!selection.isCollapsed()) {
+	    console.log('not collapsed');
+	    var editorState1 = _draftJs.EditorState.push(editorState, _draftJs.Modifier.applyEntity(newContentState, selection, key), 'apply-entity');
+
+	    var collapsedSelection = selection.merge({
+	      anchorKey: startKey,
+	      focusKey: startKey,
+	      anchorOffset: selection.getStartOffset(),
+	      focusOffset: selection.getStartOffset()
+	    });
+
+	    return _draftJs.EditorState.forceSelection(editorState1, collapsedSelection);
+	  }
+
+	  var entityKey = block.getEntityAt(startOffset);
+	  if (!entityKey) {
+	    console.log('not entity exists');
+	    return _draftJs.EditorState.push(editorState, _draftJs.Modifier.applyEntity(newContentState, selection, key), 'apply-entity');
+	  }
+
+	  var ranges = (0, _getRangesForDraftEntity2.default)(block, entityKey);
+	  var range = ranges.find(function (_ref2) {
+	    var start = _ref2.start,
+	        end = _ref2.end;
+	    return startOffset >= start && startOffset <= end;
+	  });
+
+	  if (range) {
+	    console.log('range exists');
+	    var newSelection = selection.merge({
+	      anchorKey: startKey,
+	      focusKey: startKey,
+	      anchorOffset: range.start,
+	      focusOffset: range.end
+	    });
+
+	    var newEditorState = _draftJs.EditorState.push(editorState, _draftJs.Modifier.applyEntity(newContentState, newSelection, key), 'apply-entity');
+
+	    var _collapsedSelection = newSelection.merge({
+	      anchorKey: startKey,
+	      focusKey: startKey,
+	      anchorOffset: range.start,
+	      focusOffset: range.start
+	    });
+
+	    return _draftJs.EditorState.forceSelection(newEditorState, _collapsedSelection);
+	  }
+
+	  console.log('no range exists');
 	  return _draftJs.EditorState.push(editorState, _draftJs.Modifier.applyEntity(newContentState, selection, key), 'apply-entity');
 	};
 
