@@ -88,14 +88,6 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint-disable import/no-extraneous-dependencies */
 
 
-	var initialPlaceholders = [(0, _src.createPlaceholder)('chance', 'Will'), (0, _src.createPlaceholder)('product', 'Garcinia Extreme'), (0, _src.createPlaceholder)('goal', 'loosing weight')];
-
-
-	var chance = (0, _src.createPlaceholderEntity)(initialPlaceholders[0]);
-	var product = (0, _src.createPlaceholderEntity)(initialPlaceholders[1]);
-	var goal = (0, _src.createPlaceholderEntity)(initialPlaceholders[2]);
-	var existing = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
-
 	var compositeDecorator = new _draftJs.CompositeDecorator([{
 	  strategy: _src.findPlaceholderStrategy,
 	  component: _src.PlaceholderDecorator
@@ -104,10 +96,16 @@
 	var MyEditor = function (_React$Component) {
 	  _inherits(MyEditor, _React$Component);
 
-	  function MyEditor() {
+	  function MyEditor(props) {
 	    _classCallCheck(this, MyEditor);
 
-	    var _this = _possibleConstructorReturn(this, (MyEditor.__proto__ || Object.getPrototypeOf(MyEditor)).call(this));
+	    var _this = _possibleConstructorReturn(this, (MyEditor.__proto__ || Object.getPrototypeOf(MyEditor)).call(this, props.editorState));
+
+	    _this.replaceEntitiesAndToggleDecorator = function () {
+	      var decorator = _this.props.isActive ? compositeDecorator : null;
+	      var editorState = _draftJs.EditorState.set((0, _src.replacePlaceholders)(_this.state.editorState, _this.state.placeholders), { decorator: decorator });
+	      _this.setState({ editorState: editorState });
+	    };
 
 	    _this.replaceEntities = function () {
 	      _this.setState({
@@ -157,18 +155,16 @@
 	      _this.setState({ editorState: newEditorState }, _this.replaceEntities);
 	    };
 
-	    _this.toggleDecorators = function () {
-	      var decorator = _this.state.decoratorOn ? compositeDecorator : null;
+	    _this.toggleDecorators = function (cond) {
+	      var decorator = cond ? compositeDecorator : null;
 	      var editorState = _draftJs.EditorState.set(_this.state.editorState, { decorator: decorator });
-	      _this.setState({ editorState: editorState, decoratorOn: !_this.state.decoratorOn });
+	      _this.setState({ editorState: editorState });
 	    };
 
-	    var initialEditorState = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('x').addEntity(existing, 0, 3).toEditorState(compositeDecorator);
-
 	    _this.state = {
-	      editorState: initialEditorState,
-	      placeholders: initialPlaceholders,
-	      decoratorOn: false
+	      editorState: props.editorState,
+	      placeholders: props.placeholders,
+	      decoratorOn: true
 	    };
 
 	    _this.onChange = function (editorState) {
@@ -183,9 +179,13 @@
 	  _createClass(MyEditor, [{
 	    key: 'componentWillMount',
 	    value: function componentWillMount() {
-	      var placeholders = (0, _src.mergePlaceholdersWithExisting)(this.state.editorState, initialPlaceholders);
+	      var _this2 = this;
 
-	      this.setState({ placeholders: placeholders }, this.replaceEntities);
+	      var placeholders = (0, _src.mergePlaceholdersWithExisting)(this.state.editorState, this.props.placeholders);
+
+	      this.setState({ placeholders: placeholders }, function () {
+	        _this2.replaceEntitiesAndToggleDecorator();
+	      });
 	    }
 	  }, {
 	    key: 'componentDidMount',
@@ -193,20 +193,29 @@
 	      this.domEditor.focus();
 	    }
 	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      var wasActive = this.props.isActive;
+	      var isActive = nextProps.isActive;
+	      if (!wasActive && isActive) {
+	        this.toggleDecorators(true);
+	      }
+	      if (wasActive && !isActive) {
+	        this.toggleDecorators(false);
+	      }
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'wrapper' },
-	        _react2.default.createElement(
+	        {
+	          className: 'wrapper',
+	          onClick: this.props.setActiveEditor
+	        },
+	        this.props.isActive && _react2.default.createElement(
 	          'div',
 	          { className: 'sidebar' },
-	          _react2.default.createElement(
-	            'button',
-	            { onClick: this.toggleDecorators },
-	            'Toggle Decorator ',
-	            this.state.decoratorOn ? 'on' : 'off'
-	          ),
 	          _react2.default.createElement(_PlaceholderDashboard2.default, {
 	            placeholders: this.state.placeholders,
 	            onChange: this.updatePlaceholder,
@@ -218,18 +227,28 @@
 	        ),
 	        _react2.default.createElement(
 	          'div',
-	          {
-	            className: 'content',
-	            onClick: this.focus
-	          },
+	          { className: 'editor-wrapper' },
 	          _react2.default.createElement(
 	            'div',
-	            { className: 'editor' },
-	            _react2.default.createElement(_draftJs.Editor, {
-	              ref: this.setDomEditorRef,
-	              editorState: this.state.editorState,
-	              onChange: this.onChange
-	            })
+	            null,
+	            _react2.default.createElement(
+	              'h2',
+	              { className: 'editor-header' },
+	              'Editor ',
+	              this.props.editorKey
+	            ),
+	            _react2.default.createElement(
+	              'div',
+	              {
+	                className: 'editor',
+	                onClick: this.focus
+	              },
+	              _react2.default.createElement(_draftJs.Editor, {
+	                ref: this.setDomEditorRef,
+	                editorState: this.state.editorState,
+	                onChange: this.onChange
+	              })
+	            )
 	          )
 	        )
 	      );
@@ -239,7 +258,97 @@
 	  return MyEditor;
 	}(_react2.default.Component);
 
-	_reactDom2.default.render(_react2.default.createElement(MyEditor, null), document.querySelector('.container'));
+	var App = function (_React$Component2) {
+	  _inherits(App, _React$Component2);
+
+	  function App() {
+	    _classCallCheck(this, App);
+
+	    var _this3 = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
+
+	    _this3.setActiveEditor = function (id) {
+	      return function () {
+	        if (id === _this3.state.activeEditor) return;
+	        _this3.setState({ activeEditor: id });
+	      };
+	    };
+
+	    _this3.state = {
+	      activeEditor: 1
+	    };
+	    return _this3;
+	  }
+
+	  _createClass(App, [{
+	    key: 'render',
+	    value: function render() {
+	      var placeholders1 = [(0, _src.createPlaceholder)('chance', 'Could'), (0, _src.createPlaceholder)('product', 'Green Coffee'), (0, _src.createPlaceholder)('goal', 'running faster')];
+
+	      var chance = (0, _src.createPlaceholderEntity)(placeholders1[0]);
+	      var product = (0, _src.createPlaceholderEntity)(placeholders1[1]);
+	      var goal = (0, _src.createPlaceholderEntity)(placeholders1[2]);
+	      var existing = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
+
+	      var editorState1 = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('x').addEntity(existing, 0).toEditorState();
+
+	      var placeholders2 = [(0, _src.createPlaceholder)('chance', 'Will'), (0, _src.createPlaceholder)('product', 'Garcinia Extreme'), (0, _src.createPlaceholder)('goal', 'loosing weight')];
+
+	      var chance2 = (0, _src.createPlaceholderEntity)(placeholders1[0]);
+	      var product2 = (0, _src.createPlaceholderEntity)(placeholders1[1]);
+	      var goal2 = (0, _src.createPlaceholderEntity)(placeholders1[2]);
+	      var existing2 = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
+
+	      var editorState2 = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance2, 0, 3).addBlock('goal', 'header-two').addEntity(goal2, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product2, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product2, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('x').addEntity(existing2).toEditorState();
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'content' },
+	          _react2.default.createElement(MyEditor, {
+	            editorKey: 1,
+	            setActiveEditor: this.setActiveEditor(1),
+	            isActive: this.state.activeEditor === 1,
+	            editorState: editorState1,
+	            placeholders: placeholders1
+	          }),
+	          _react2.default.createElement(MyEditor, {
+	            editorKey: 2,
+	            setActiveEditor: this.setActiveEditor(2),
+	            isActive: this.state.activeEditor === 2,
+	            editorState: editorState2,
+	            placeholders: placeholders2
+	          }),
+	          _react2.default.createElement(MyEditor, {
+	            editorKey: 3,
+	            setActiveEditor: this.setActiveEditor(3),
+	            isActive: this.state.activeEditor === 3,
+	            editorState: editorState1,
+	            placeholders: placeholders1
+	          }),
+	          _react2.default.createElement(MyEditor, {
+	            editorKey: 4,
+	            setActiveEditor: this.setActiveEditor(4),
+	            isActive: this.state.activeEditor === 4,
+	            editorState: editorState2,
+	            placeholders: placeholders2
+	          }),
+	          _react2.default.createElement(MyEditor, {
+	            editorKey: 5,
+	            setActiveEditor: this.setActiveEditor(5),
+	            isActive: this.state.activeEditor === 5,
+	            editorState: editorState1,
+	            placeholders: placeholders1
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return App;
+	}(_react2.default.Component);
+
+	_reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.container'));
 
 /***/ },
 /* 2 */
@@ -41494,7 +41603,7 @@
 	    'span',
 	    {
 	      style: {
-	        backgroundColor: '#4e4eff',
+	        backgroundColor: '#0095ff',
 	        color: '#fff',
 	        borderRadius: '5px',
 	        padding: '2px',
@@ -42219,7 +42328,7 @@
 
 
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  background: #8d8d8d;\n}\n\n.content {\n  flex: 1 1 auto;\n  margin-left: 270px;\n  margin-right: 20px;\n  height: 100vh;\n  margin-top: 40px;\n}\n\n.sidebar {\n  flex: 0 0 250px;\n  width: 250px;\n  padding: 15px;\n  position: fixed;\n  z-index: 2;\n  background: #0095ff;\n  color: #fff;\n  height: 100vh;\n  overflow-y: scroll;\n}\n\n.wrapper {\n  display: flex;\n}\n\n.input-group {\n  margin-bottom: 20px;\n}\n\n.input-group input {\n  padding: 5px;\n  width: 100%;\n}\n\n.button-group {\n  display: flex;\n}\n\n.button-add {\n  background: #38c500;\n  color: white;\n}\n\n.button-remove {\n  background: #d93114;\n  color: white;\n}\n\n.button-group button {\n  display: flex;\n  flex: 1;\n  justify-content: center;\n  margin: 5px 2px;\n  padding: 5px;\n}\n\n.editor {\n  border: 1px solid #ccc;\n  background: #fff;\n  padding: 5px;\n}", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  background: #8d8d8d;\n}\n\n.content {\n  flex: 1 1 auto;\n  margin-left: 270px;\n  margin-right: 20px;\n  margin-top: 10px;\n}\n\n.sidebar {\n  flex: 0 0 250px;\n  width: 250px;\n  padding: 15px;\n  position: fixed;\n  z-index: 2;\n  top: 0;\n  left: 0;\n  background: #0095ff;\n  color: #fff;\n  height: 100vh;\n  overflow-y: scroll;\n}\n\n.input-group {\n  margin-bottom: 20px;\n}\n\n.input-group input {\n  padding: 5px;\n  width: 100%;\n}\n\n.button-group {\n  display: flex;\n}\n\n.button-add {\n  background: #38c500;\n  color: white;\n}\n\n.button-remove {\n  background: #d93114;\n  color: white;\n}\n\n.button-group button {\n  display: flex;\n  flex: 1;\n  justify-content: center;\n  margin: 5px 2px;\n  padding: 5px;\n}\n\n.editor {\n  border: 1px solid #ccc;\n  background: #fff;\n  padding: 5px;\n}\n\n.editor-header {\n  background: #0095ff;\n  color: #fff;\n  padding: 10px;\n  margin: 0;\n}\n\n.editor-wrapper {\n  margin-bottom: 20px;\n  box-shadow: 0 5px 8px #505050;\n}", ""]);
 
 	// exports
 
