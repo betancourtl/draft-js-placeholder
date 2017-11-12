@@ -75,6 +75,8 @@
 
 	var _PlaceholderDashboard2 = _interopRequireDefault(_PlaceholderDashboard);
 
+	__webpack_require__(331);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -87,6 +89,7 @@
 
 
 	var initialPlaceholders = [(0, _src.createPlaceholder)('chance', 'Will'), (0, _src.createPlaceholder)('product', 'Garcinia Extreme'), (0, _src.createPlaceholder)('goal', 'loosing weight')];
+
 
 	var chance = (0, _src.createPlaceholderEntity)(initialPlaceholders[0]);
 	var product = (0, _src.createPlaceholderEntity)(initialPlaceholders[1]);
@@ -196,40 +199,43 @@
 
 	      return _react2.default.createElement(
 	        'div',
-	        null,
+	        { className: 'wrapper' },
 	        _react2.default.createElement(
-	          'button',
-	          { onClick: this.toggleDecorators },
-	          'Toggle Decorator ',
-	          this.state.decoratorOn ? 'on' : 'off'
+	          'div',
+	          { className: 'sidebar' },
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.toggleDecorators },
+	            'Toggle Decorator ',
+	            this.state.decoratorOn ? 'on' : 'off'
+	          ),
+	          _react2.default.createElement(_PlaceholderDashboard2.default, {
+	            placeholders: this.state.placeholders,
+	            onChange: this.updatePlaceholder,
+	            replaceEntities: this.replaceEntities,
+	            addPlaceholder: this.addPlaceholder,
+	            removePlaceholder: this.removePlaceholder,
+	            applyPlaceholder: this.applyPlaceholder
+	          })
 	        ),
-	        _react2.default.createElement(
-	          'h3',
-	          null,
-	          'Finds placeholders in the editorState when the component mounts and then merges them with the new ones that came down as props'
-	        ),
-	        _react2.default.createElement(_PlaceholderDashboard2.default, {
-	          placeholders: this.state.placeholders,
-	          onChange: this.updatePlaceholder,
-	          replaceEntities: this.replaceEntities,
-	          addPlaceholder: this.addPlaceholder,
-	          removePlaceholder: this.removePlaceholder,
-	          applyPlaceholder: this.applyPlaceholder
-	        }),
 	        _react2.default.createElement(
 	          'div',
 	          {
-	            style: { marginTop: '40px', border: '1px solid #ccc', background: 'white' },
+	            className: 'content',
 	            onDoubleClick: function onDoubleClick() {
 	              return (0, _src.logRaw)(_this2.state.editorState);
 	            },
 	            onClick: this.focus
 	          },
-	          _react2.default.createElement(_draftJs.Editor, {
-	            ref: this.setDomEditorRef,
-	            editorState: this.state.editorState,
-	            onChange: this.onChange
-	          })
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'editor' },
+	            _react2.default.createElement(_draftJs.Editor, {
+	              ref: this.setDomEditorRef,
+	              editorState: this.state.editorState,
+	              onChange: this.onChange
+	            })
+	          )
 	        )
 	      );
 	    }
@@ -41689,35 +41695,63 @@
 	var Placeholder = function Placeholder(props) {
 	  return _react2.default.createElement(
 	    'div',
-	    null,
-	    _react2.default.createElement('input', {
-	      type: 'text',
-	      defaultValue: props.name,
-	      disabled: true
-	    }),
-	    _react2.default.createElement('input', {
-	      type: 'text',
-	      onChange: function onChange(e) {
-	        return props.onChange(e.target.value);
-	      },
-	      onKeyDown: function onKeyDown(e) {
-	        return e.keyCode === 13 && props.onEnter();
-	      },
-	      value: props.value
-	    }),
+	    { className: 'input-group' },
 	    _react2.default.createElement(
-	      'button',
-	      { onClick: function onClick() {
-	          return props.applyPlaceholder(props.name, props.value);
-	        } },
-	      'Add'
+	      'div',
+	      { className: 'input-control' },
+	      _react2.default.createElement(
+	        'label',
+	        null,
+	        'name:'
+	      ),
+	      _react2.default.createElement('input', {
+	        type: 'text',
+	        defaultValue: props.name,
+	        disabled: true
+	      })
 	    ),
 	    _react2.default.createElement(
-	      'button',
-	      { onClick: function onClick() {
-	          return props.removePlaceholder(props.name);
-	        } },
-	      'Remove'
+	      'div',
+	      { className: 'input-control' },
+	      _react2.default.createElement(
+	        'label',
+	        null,
+	        'value:'
+	      ),
+	      _react2.default.createElement('input', {
+	        type: 'text',
+	        onChange: function onChange(e) {
+	          return props.onChange(e.target.value);
+	        },
+	        onKeyDown: function onKeyDown(e) {
+	          return e.keyCode === 13 && props.onEnter();
+	        },
+	        value: props.value
+	      })
+	    ),
+	    _react2.default.createElement(
+	      'div',
+	      { className: 'button-group' },
+	      _react2.default.createElement(
+	        'button',
+	        {
+	          className: 'button-add',
+	          onClick: function onClick() {
+	            return props.applyPlaceholder(props.name, props.value);
+	          }
+	        },
+	        'Add'
+	      ),
+	      _react2.default.createElement(
+	        'button',
+	        {
+	          className: 'button-remove',
+	          onClick: function onClick() {
+	            return props.removePlaceholder(props.name);
+	          }
+	        },
+	        'Remove'
+	      )
 	    )
 	  );
 	};
@@ -41746,20 +41780,14 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'placeholder-dashboard' },
-	        placeholders.map(function (item, i) {
-	          return _react2.default.createElement(Placeholder, {
-	            onChange: _this2.props.onChange(i),
-	            onEnter: _this2.props.replaceEntities,
-	            applyPlaceholder: _this2.props.applyPlaceholder,
-	            removePlaceholder: _this2.props.removePlaceholder,
-	            key: i,
-	            name: item.name,
-	            value: item.value
-	          });
-	        }),
 	        _react2.default.createElement(
 	          'div',
-	          null,
+	          { className: 'input-group' },
+	          _react2.default.createElement(
+	            'label',
+	            null,
+	            'Add Placeholder'
+	          ),
 	          _react2.default.createElement('input', {
 	            type: 'text',
 	            value: this.state.value,
@@ -41771,15 +41799,31 @@
 	            }
 	          }),
 	          _react2.default.createElement(
-	            'button',
-	            {
-	              onClick: function onClick() {
-	                return _this2.props.addPlaceholder(_this2.state.name);
-	              }
-	            },
-	            'Add Placeholder'
+	            'div',
+	            { className: 'button-group' },
+	            _react2.default.createElement(
+	              'button',
+	              {
+	                className: 'button-add',
+	                onClick: function onClick() {
+	                  return _this2.props.addPlaceholder(_this2.state.name);
+	                }
+	              },
+	              'Add'
+	            )
 	          )
-	        )
+	        ),
+	        placeholders.map(function (item, i) {
+	          return _react2.default.createElement(Placeholder, {
+	            onChange: _this2.props.onChange(i),
+	            onEnter: _this2.props.replaceEntities,
+	            applyPlaceholder: _this2.props.applyPlaceholder,
+	            removePlaceholder: _this2.props.removePlaceholder,
+	            key: i,
+	            name: item.name,
+	            value: item.value
+	          });
+	        })
 	      );
 	    }
 	  }]);
@@ -42139,6 +42183,50 @@
 		if(oldSrc)
 			URL.revokeObjectURL(oldSrc);
 	}
+
+
+/***/ },
+/* 331 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(332);
+	if (typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(330)(content, {});
+	if (content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if (false) {
+		// When the styles change, update the <style> tags
+		if (!content.locals) {
+			module.hot.accept("!!./node_modules/css-loader/index.js!./styles.css", function () {
+				var newContent = require("!!./node_modules/css-loader/index.js!./styles.css");
+				if (typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function () {
+			update();
+		});
+	}
+
+/***/ },
+/* 332 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(329)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  background: #8d8d8d;\n}\n\n.content {\n  flex: 1 1 auto;\n  margin-left: 270px;\n  margin-right: 20px;\n  height: 100vh;\n  margin-top: 40px;\n}\n\n.sidebar {\n  flex: 0 0 250px;\n  width: 250px;\n  padding: 15px;\n  position: fixed;\n  z-index: 2;\n  background: #0095ff;\n  color: #fff;\n  height: 100vh;\n  overflow-y: scroll;\n}\n\n.wrapper {\n  display: flex;\n}\n\n.input-group {\n  margin-bottom: 20px;\n}\n\n.input-group input {\n  padding: 5px;\n  width: 100%;\n}\n\n.button-group {\n  display: flex;\n}\n\n.button-add {\n  background: #38c500;\n  color: white;\n}\n\n.button-remove {\n  background: #d93114;\n  color: white;\n}\n\n.button-group button {\n  display: flex;\n  flex: 1;\n  justify-content: center;\n  margin: 5px 2px;\n  padding: 5px;\n}\n\n.editor {\n  border: 1px solid #ccc;\n  background: #fff;\n  padding: 5px;\n}", ""]);
+
+	// exports
 
 
 /***/ }
