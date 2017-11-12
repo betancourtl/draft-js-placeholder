@@ -30,10 +30,10 @@ const compositeDecorator = new CompositeDecorator([
 ]);
 
 const initialEditorState = new RawContentState()
-  .addBlock('Block 1')
+  .addBlock('Luis')
   .addEntity(entity1)
-  .addBlock('Block 1')
-  .addEntity(entity1)
+  .addBlock('Betancourt')
+  .addEntity(entity2)
   .toEditorState(compositeDecorator);
 
 class MyEditor extends React.Component {
@@ -78,7 +78,6 @@ class MyEditor extends React.Component {
   };
 
   render() {
-    // logRaw(this.state.editorState);
     return (
       <div>
         <PlaceholderDashboard
@@ -88,7 +87,7 @@ class MyEditor extends React.Component {
           addPlaceholder={this.addPlaceholder}
         />
         <div
-          style={{ marginTop: '20px' }}
+          style={{ marginTop: '40px' }}
           onDoubleClick={() => logRaw(this.state.editorState)}
         >
           <Editor

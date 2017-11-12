@@ -1,6 +1,5 @@
 import React from 'react';
 import { EditorState, convertToRaw, Modifier, SelectionState } from 'draft-js';
-import getRangesForDraftEntity from 'draft-js/lib/getRangesForDraftEntity';
 
 // TODO: [] create a decorator component
 // TODO: [] create a placeholder interface
@@ -34,28 +33,29 @@ export const replacePlaceholder = (
   const key = char.getEntity();
 
   // no entityKey exist
-  if (!key) return { char };
+  if (!key) return char;
 
   const data = contentState.getEntity(key).getData();
   const { name, value } = data.placeholder;
   const newData = placeholders.find((item = {}) => name === item.name && item.value !== value);
 
   // data did not change
-  if (!newData) return { char };
+  if (!newData) return char;
 
   // I think the contentState does not need to be returned because entityMap is not immutable
   contentState.mergeEntityData(key, { placeholder: { ...newData } });
-  return { char, replaced: { key, newData } };
+  return char;
 };
 
 export const findPlaceholderRanges = (block, contentState) => {
   let ranges = [];
+  let key = null;
   block.findEntityRanges(char => {
     const entityKey = char.getEntity();
     if (!entityKey) return false;
-
+    key = entityKey;
     return contentState.getEntity(entityKey).getType() === PLACEHOLDER_TYPE;
-  }, (start, end) => ranges.push({ start, end }));
+  }, (start, end) => ranges.push({ start, end, key }));
   return ranges;
 };
 
@@ -69,49 +69,55 @@ export const replacePlaceholders = (editorState, placeholders = []) => {
     // Get the characters of the current block
     let chars = block.getCharacterList();
     let currentChar;
-    let keys = [];
     while (sliceStart < sliceEnd) {
       currentChar = chars.get(sliceStart);
       // returns the new character
       // returns a key only if the data was updated.
-      const { char, replaced } = replacePlaceholder(contentState, placeholders, currentChar);
-      if (replaced) keys.push(replaced);
+      const char = replacePlaceholder(contentState, placeholders, currentChar);
       chars = chars.set(sliceStart, char);
       sliceStart += 1;
     }
 
+    const ranges = findPlaceholderRanges(block, contentState);
+
     // no changed keys return the chars
-    if (!keys.length) {
+    if (!ranges.length) {
       return block.set('characterList', chars);
     }
 
-    // text needs to be changed.
     const blockKey = block.getKey();
-    // for each key replace the text
-    const newContentState = keys.reduce((contentState1, replaced) => {
-      const { key, newData } = replaced;
-      // each of the ranges replace rance with new name;
-      const newBlock = contentState1.getBlockForKey(blockKey);
-      const ranges = getRangesForDraftEntity(newBlock, key);
-      return ranges.reduce((reducedContentState, { start, end }) => {
-        const newRange = {
-          anchorOffset: start,
-          focusOffset: end,
-          anchorKey: blockKey,
-          focusKey: blockKey,
-        };
 
-        return Modifier.replaceText(
-          reducedContentState,
-          SelectionState.createEmpty(block.getKey).merge(newRange),
-          newData.value,
-          newBlock.getInlineStyleAt(start),
-          key
-        );
-      }, contentState1);
-    }, contentState);
+    const result = ranges.reduce((acc, { start, end, key }) => {
+      const contentState1 = acc.contentState;
+      const diff = acc.diff;
+      const newStart = start - diff;
+      const newEnd = end - diff;
+      const currentBlock = contentState1.getBlockForKey(blockKey);
+      const { value } = contentState1.getEntity(key).getData().placeholder;
 
-    return newContentState.getBlockForKey(blockKey);
+      const newRange = {
+        anchorOffset: newStart,
+        focusOffset: newEnd,
+        anchorKey: blockKey,
+        focusKey: blockKey,
+      };
+
+      const contentState2 = Modifier.replaceText(
+        contentState1,
+        SelectionState.createEmpty(blockKey).merge(newRange),
+        value,
+        currentBlock.getInlineStyleAt(start),
+        key
+      );
+
+      const newDiff = (newEnd - newStart) - value.length;
+      return {
+        contentState: contentState2,
+        diff: newDiff + acc.diff,
+      };
+    }, { contentState, diff: 0 });
+
+    return result.contentState.getBlockForKey(blockKey);
   });
 
   const newContentState = contentState.merge({

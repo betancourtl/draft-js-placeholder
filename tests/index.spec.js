@@ -18,12 +18,17 @@ describe('replacePlaceholders', () => {
   const entity2 = createPlaceholderEntity(createPlaceholder('lastName', 'Graziano'));
   const entity3 = createPlaceholderEntity(createPlaceholder('job', 'student'));
 
-  it('should return a new editorState', () => {
+  it.only('should return a new editorState', () => {
     const editorState = new RawContentState()
       .addBlock('Cristian Graziano student')
+      // .addBlock('Luis Betancourt Programmer')
       .addEntity(entity1, 0, 8)
+      // 0, 4
+      // diff = 4
       .addEntity(entity2, 9, 8)
+      // 5, 10
       .addEntity(entity3, 18, 7)
+      // 10, 10
       .toEditorState();
 
     const newEditorState = replacePlaceholders(editorState, mentions);
