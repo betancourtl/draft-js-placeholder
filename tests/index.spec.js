@@ -5,6 +5,8 @@ import {
   findPlaceholderRanges,
   replacePlaceholders,
   createPlaceholder,
+  findAllPlaceholders,
+  mergePlaceholdersWithExisting,
 } from '../src';
 
 describe('replacePlaceholders', () => {
@@ -17,6 +19,7 @@ describe('replacePlaceholders', () => {
   const entity1 = createPlaceholderEntity(createPlaceholder('firstName', 'Cristian'));
   const entity2 = createPlaceholderEntity(createPlaceholder('lastName', 'Graziano'));
   const entity3 = createPlaceholderEntity(createPlaceholder('job', 'student'));
+  const entity3WithDifferntVal = createPlaceholderEntity(createPlaceholder('job', 'organizer'));
 
   it('should return a new editorState', () => {
     const editorState = new RawContentState()
@@ -67,5 +70,68 @@ describe('replacePlaceholders', () => {
     );
 
     expect(ranges.length).to.equal(3);
+  });
+
+  describe('findAllPlaceholders', () => {
+    it('should find all of the placeholders on the editorState', () => {
+      const editorState = new RawContentState()
+        .addBlock('block1')
+        .addEntity(entity1)
+        .addBlock('block2')
+        .addEntity(entity3)
+        .addBlock('block3')
+        .addEntity(entity3WithDifferntVal)
+        .toEditorState();
+      const placeholders = findAllPlaceholders(editorState);
+      expect(placeholders.length).to.equal(2);
+    });
+    it('should find all of the placeholders on the editorState', () => {
+      const editorState = new RawContentState()
+        .addBlock('block1')
+        .addEntity(entity1)
+        .addBlock('block2')
+        .addEntity(entity2)
+        .addBlock('block3')
+        .addEntity(entity3)
+        .toEditorState();
+      const placeholders = findAllPlaceholders(editorState);
+      expect(placeholders.length).to.equal(3);
+    });
+  });
+
+  describe('mergePlaceholdersWithExisting', () => {
+    it('should find all of the placeholders on the editorState and merge them with existing ones', () => {
+      const serverPlaceholders = [
+        createPlaceholder('rank', 'pro'),
+        createPlaceholder('age', '34'),
+        createPlaceholder('position', 'front'),
+      ];
+
+      const editorState = new RawContentState()
+        .addBlock('block1')
+        .addEntity(entity1)
+        .addBlock('block2')
+        .addEntity(entity2)
+        .addBlock('block3')
+        .addEntity(entity3)
+        .toEditorState();
+      const placeholders = mergePlaceholdersWithExisting(
+        editorState,
+      serverPlaceholders,
+      );
+      expect(placeholders.length).to.equal(6);
+    });
+    it('should find all of the placeholders on the editorState', () => {
+      const editorState = new RawContentState()
+        .addBlock('block1')
+        .addEntity(entity1)
+        .addBlock('block2')
+        .addEntity(entity2)
+        .addBlock('block3')
+        .addEntity(entity3)
+        .toEditorState();
+      const placeholders = findAllPlaceholders(editorState);
+      expect(placeholders.length).to.equal(3);
+    });
   });
 });

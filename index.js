@@ -9,9 +9,12 @@ import {
   createPlaceholder,
   createPlaceholderEntity,
   applyPlaceholderEntityToSelection,
+  mergePlaceholdersWithExisting,
+  findPlaceholderStrategy,
+  logRaw,
+  PlaceholderDecorator,
 } from './src';
 import PlaceholderDashboard from './src/PlaceholderDashboard';
-import { findPlaceholderStrategy, logRaw, PlaceholderDecorator } from "./src/index";
 
 const initialPlaceholders = [
   createPlaceholder('chance', 'Will'),
@@ -22,6 +25,10 @@ const initialPlaceholders = [
 const chance = createPlaceholderEntity(initialPlaceholders[0]);
 const product = createPlaceholderEntity(initialPlaceholders[1]);
 const goal = createPlaceholderEntity(initialPlaceholders[2]);
+const existing = createPlaceholderEntity(createPlaceholder(
+  'existing',
+  'already existing and not in placholders')
+);
 
 const compositeDecorator = new CompositeDecorator([
   {
@@ -48,6 +55,8 @@ class MyEditor extends React.Component {
       .addEntity(chance, 0, 3)
       .addBlock('May Improve Vitality And Energy', 'unordered-list-item')
       .addEntity(chance, 0, 3)
+      .addBlock('x')
+      .addEntity(existing, 0, 3)
       .toEditorState(compositeDecorator);
 
     this.state = {
@@ -59,12 +68,18 @@ class MyEditor extends React.Component {
     this.setDomEditorRef = ref => this.domEditor = ref;
   }
 
-  componentDidMount() {
-    this.domEditor.focus();
-    this.replaceEntities();
+  componentWillMount() {
+    const placeholders = mergePlaceholdersWithExisting(
+      this.state.editorState,
+      initialPlaceholders,
+    );
+
+    this.setState({ placeholders }, this.replaceEntities);
   }
 
-  getEditorState = () => this.state.editorState;
+  componentDidMount() {
+    this.domEditor.focus();
+  }
 
   replaceEntities = () => {
     this.setState({
@@ -109,6 +124,10 @@ class MyEditor extends React.Component {
   render() {
     return (
       <div>
+        <h3>
+          Finds placeholders in the editorState when the component mounts and then
+          merges them with the new ones that came down as props
+        </h3>
         <PlaceholderDashboard
           placeholders={this.state.placeholders}
           onChange={this.updatePlaceholder}

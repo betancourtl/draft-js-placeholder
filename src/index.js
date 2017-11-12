@@ -238,3 +238,42 @@ export const findPlaceholderStrategy = (contentBlock, callback, contentState) =>
   );
 };
 
+export const findBlockPlaceholders = contentState => (acc, block) => {
+  let placeholders = {};
+  let key = null;
+  block.findEntityRanges(char => {
+    const entityKey = char.getEntity();
+    if (!entityKey) return false;
+    key = entityKey;
+    return contentState.getEntity(entityKey).getType() === PLACEHOLDER_TYPE;
+  }, () => {
+    const placeholderData = contentState.getEntity(key).getData()[PLACEHOLDER_TYPE];
+    placeholders[placeholderData.name] = placeholderData;
+  });
+
+  return { ...acc, ...placeholders };
+};
+
+export const findAllPlaceholders = editorState => {
+  const contentState = editorState.getCurrentContent();
+  const reduceFn = findBlockPlaceholders(contentState);
+
+  const placeholders = contentState
+    .getBlockMap()
+    .reduce(reduceFn, {});
+
+  return Object
+    .keys(placeholders)
+    .map(key => placeholders[key]);
+};
+
+export const mergePlaceholdersWithExisting = (editorState, placeholders) => {
+  const existing = findAllPlaceholders(editorState);
+
+  return existing.reduce((acc, val) => {
+    const exists = acc.find(({ name }) => name === val.name);
+    if (exists) return acc;
+    return acc.concat(val);
+  }, placeholders);
+};
+
