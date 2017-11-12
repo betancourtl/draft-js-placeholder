@@ -18,7 +18,7 @@ describe('replacePlaceholders', () => {
   const entity2 = createPlaceholderEntity(createPlaceholder('lastName', 'Graziano'));
   const entity3 = createPlaceholderEntity(createPlaceholder('job', 'student'));
 
-  it.only('should return a new editorState', () => {
+  it('should return a new editorState', () => {
     const editorState = new RawContentState()
       .addBlock('Cristian Graziano student')
       // .addBlock('Luis Betancourt Programmer')
@@ -66,6 +66,6 @@ describe('replacePlaceholders', () => {
       editorState.getCurrentContent()
     );
 
-    console.log('ranges :\n', ranges);
+    expect(ranges.length).to.equal(3);
   });
 });

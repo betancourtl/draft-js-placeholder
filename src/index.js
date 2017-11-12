@@ -106,7 +106,7 @@ export const replacePlaceholders = (editorState, placeholders = []) => {
       const contentState2 = Modifier.replaceText(
         contentState1,
         selection,
-        value,
+        value || ' ', // value us empty
         inlineStyle,
         key
       );

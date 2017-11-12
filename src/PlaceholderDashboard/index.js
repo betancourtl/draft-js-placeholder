@@ -7,6 +7,7 @@ const Placeholder = props => {
       <input
         type="text"
         defaultValue={props.name}
+        disabled
       />
       <input
         type="text"
@@ -17,11 +18,21 @@ const Placeholder = props => {
       <button onClick={() => props.applyPlaceholder(props.name, props.value)}>
         Add
       </button>
+      <button onClick={() => props.removePlaceholder(props.name)}>
+        Remove
+      </button>
     </div>
   );
 };
 
 class PlaceholderDashboard extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      name: '',
+    };
+  }
+
   render() {
     const { placeholders } = this.props;
     return (
@@ -33,6 +44,7 @@ class PlaceholderDashboard extends React.Component {
                 onChange={this.props.onChange(i)}
                 onEnter={this.props.replaceEntities}
                 applyPlaceholder={this.props.applyPlaceholder}
+                removePlaceholder={this.props.removePlaceholder}
                 key={i}
                 name={item.name}
                 value={item.value}
@@ -40,12 +52,19 @@ class PlaceholderDashboard extends React.Component {
             );
           })
         }
-        <button onClick={this.props.replaceEntities}>
-          replace entities
-        </button>
-        <button onClick={() => this.props.addPlaceholder()}>
-          Add Placeholder
-        </button>
+        <div>
+          <input
+            type="text"
+            value={this.state.value}
+            onChange={e => this.setState({ name: e.target.value })}
+            onKeyDown={e => e.keyCode === 13 && this.props.addPlaceholder(this.state.name)}
+          />
+          <button
+            onClick={() => this.props.addPlaceholder(this.state.name)}
+          >
+            Add Placeholder
+          </button>
+        </div>
       </div>
     );
   }

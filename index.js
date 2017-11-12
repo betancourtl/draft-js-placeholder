@@ -14,14 +14,14 @@ import PlaceholderDashboard from './src/PlaceholderDashboard';
 import { findPlaceholderStrategy, logRaw, PlaceholderDecorator } from "./src/index";
 
 const initialPlaceholders = [
-  createPlaceholder('firstName', 'Luis'),
-  createPlaceholder('lastName', 'Betancourt'),
-  createPlaceholder('job', 'programmer'),
+  createPlaceholder('chance', 'Will'),
+  createPlaceholder('product', 'Garcinia Extreme'),
+  createPlaceholder('goal', 'loosing weight'),
 ];
 
-const entity1 = createPlaceholderEntity(createPlaceholder('firstName', 'Cristian'));
-const entity2 = createPlaceholderEntity(createPlaceholder('lastName', 'Graziano'));
-const entity3 = createPlaceholderEntity(createPlaceholder('job', 'student'));
+const chance = createPlaceholderEntity(initialPlaceholders[0]);
+const product = createPlaceholderEntity(initialPlaceholders[1]);
+const goal = createPlaceholderEntity(initialPlaceholders[2]);
 
 const compositeDecorator = new CompositeDecorator([
   {
@@ -30,26 +30,41 @@ const compositeDecorator = new CompositeDecorator([
   },
 ]);
 
-const initialEditorState = new RawContentState()
-  .addBlock('Luis')
-  .addEntity(entity1)
-  .addBlock('Betancourt')
-  .addEntity(entity2)
-  .addBlock('Block 3')
-  .toEditorState(compositeDecorator);
-
 class MyEditor extends React.Component {
   constructor() {
     super();
+    const initialEditorState = new RawContentState()
+      .addBlock('May Help With', 'header-two')
+      .addEntity(chance, 0, 3)
+      .addBlock('goal', 'header-two')
+      .addEntity(goal, 0, 4)
+      .addBlock('BL Demo Product is a triple-threat natural health supplement.')
+      .addEntity(product, 0, 15)
+      .addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.')
+      .addEntity(product, 63, 15)
+      .addBlock('May Manage Stress', 'unordered-list-item')
+      .addEntity(chance, 0, 3)
+      .addBlock('May Suppress Appetite', 'unordered-list-item')
+      .addEntity(chance, 0, 3)
+      .addBlock('May Improve Vitality And Energy', 'unordered-list-item')
+      .addEntity(chance, 0, 3)
+      .toEditorState(compositeDecorator);
+
     this.state = {
       editorState: initialEditorState,
       placeholders: initialPlaceholders,
     };
 
-    this.onChange = editorState => {
-      this.setState({ editorState });
-    };
+    this.onChange = editorState => this.setState({ editorState });
+    this.setDomEditorRef = ref => this.domEditor = ref;
   }
+
+  componentDidMount() {
+    this.domEditor.focus();
+    this.replaceEntities();
+  }
+
+  getEditorState = () => this.state.editorState;
 
   replaceEntities = () => {
     this.setState({
@@ -59,18 +74,22 @@ class MyEditor extends React.Component {
 
   addPlaceholder = (name = '', value = '') => {
     const oldPlaceholders = this.state.placeholders;
-    const createName = (_name, placeholders, index = 0) => {
-      const found = placeholders.find(x => x.name === _name);
-      if (found) {
-        return createName(`placeholder${index}`, placeholders, index + 1);
-      }
-      return _name;
-    };
+    const found = oldPlaceholders.find(x => x.name === name);
+    if (found) {
+      return;
+    }
 
     const placeholders = [
       ...oldPlaceholders,
-      createPlaceholder(createName(name, oldPlaceholders), value),
+      createPlaceholder(name, value),
     ];
+
+    this.setState({ placeholders });
+  };
+
+  removePlaceholder = (name = '') => {
+    const oldPlaceholders = this.state.placeholders;
+    const placeholders = oldPlaceholders.filter(x => x.name !== name);
 
     this.setState({ placeholders });
   };
@@ -95,13 +114,16 @@ class MyEditor extends React.Component {
           onChange={this.updatePlaceholder}
           replaceEntities={this.replaceEntities}
           addPlaceholder={this.addPlaceholder}
+          removePlaceholder={this.removePlaceholder}
           applyPlaceholder={this.applyPlaceholder}
         />
         <div
           style={{ marginTop: '40px' }}
           onDoubleClick={() => logRaw(this.state.editorState)}
+          onClick={this.focus}
         >
           <Editor
+            ref={this.setDomEditorRef}
             editorState={this.state.editorState}
             onChange={this.onChange}
           />
