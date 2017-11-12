@@ -176,7 +176,9 @@ export const applyPlaceholderEntityToSelection = (name, value, editorState) => {
     return EditorState.forceSelection(editorState1, collapsedSelection);
   }
 
-  const entityKey = block.getEntityAt(startOffset);
+  const entityKey = block.getEntityAt(startOffset)
+    || (startOffset !== 0 && block.getEntityAt(startOffset - 1));
+
   if (!entityKey) {
     console.log('not entity exists');
     return EditorState.push(
