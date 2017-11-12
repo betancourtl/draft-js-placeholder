@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { RawContentState } from 'draft-js-raw-content-state';
 import {
   createPlaceholderEntity,
+  findPlaceholderRanges,
   replacePlaceholders,
   createPlaceholder,
 } from '../src';
@@ -45,5 +46,21 @@ describe('replacePlaceholders', () => {
       .getFirstBlock()
       .getInlineStyleAt(0);
     expect(color.toJS()).to.deep.equal(['COLOR_RED']);
+  });
+
+  it('Should find placeholder ranges', () => {
+    const editorState = new RawContentState()
+      .addBlock('Cristian Graziano student')
+      .addEntity(entity1, 0, 8)
+      .addEntity(entity2, 9, 8)
+      .addEntity(entity3, 18, 7)
+      .toEditorState();
+
+    let ranges = findPlaceholderRanges(
+      editorState.getCurrentContent().getFirstBlock(),
+      editorState.getCurrentContent()
+    );
+
+    console.log('ranges :\n', ranges);
   });
 });

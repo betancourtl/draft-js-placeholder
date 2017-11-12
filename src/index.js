@@ -48,6 +48,17 @@ export const replacePlaceholder = (
   return { char, replaced: { key, newData } };
 };
 
+export const findPlaceholderRanges = (block, contentState) => {
+  let ranges = [];
+  block.findEntityRanges(char => {
+    const entityKey = char.getEntity();
+    if (!entityKey) return false;
+
+    return contentState.getEntity(entityKey).getType() === PLACEHOLDER_TYPE;
+  }, (start, end) => ranges.push({ start, end }));
+  return ranges;
+};
+
 export const replacePlaceholders = (editorState, placeholders = []) => {
   const contentState = editorState.getCurrentContent();
   const blockMap = contentState.getBlockMap();
