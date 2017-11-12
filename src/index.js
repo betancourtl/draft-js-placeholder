@@ -8,7 +8,7 @@ import {
 } from 'draft-js';
 import getRangesForDraftEntity from 'draft-js/lib/getRangesForDraftEntity';
 
-const PLACEHOLDER_TYPE = 'placeholder';
+const PLACEHOLDER_TYPE = 'mentions';
 const PLACEHOLDER_MUTABILITY = 'IMMUTABLE';
 
 export const logRaw = editorState => {
@@ -113,7 +113,7 @@ export const replacePlaceholders = (editorState, placeholders = []) => {
       const contentState2 = Modifier.replaceText(
         contentState1,
         selection,
-        value || ' ', // value us empty
+        value || ' ', // value is empty
         inlineStyle,
         key
       );

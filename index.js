@@ -2,7 +2,7 @@
 // @flow
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Editor, CompositeDecorator } from 'draft-js';
+import { Editor, CompositeDecorator, EditorState } from 'draft-js';
 import RawContentState from 'draft-js-raw-content-state';
 import {
   replacePlaceholders,
@@ -63,6 +63,7 @@ class MyEditor extends React.Component {
     this.state = {
       editorState: initialEditorState,
       placeholders: initialPlaceholders,
+      decoratorOn: false,
     };
 
     this.onChange = editorState => this.setState({ editorState });
@@ -122,9 +123,20 @@ class MyEditor extends React.Component {
     this.setState({ editorState: newEditorState }, this.replaceEntities);
   };
 
+  toggleDecorators = () => {
+    const decorator = this.state.decoratorOn
+      ? compositeDecorator
+      : null;
+    const editorState = EditorState.set(this.state.editorState, { decorator });
+    this.setState({ editorState, decoratorOn: !this.state.decoratorOn });
+  };
+
   render() {
     return (
       <div>
+        <button onClick={this.toggleDecorators}>
+          Toggle Decorator {this.state.decoratorOn ? 'on' : 'off'}
+        </button>
         <h3>
           Finds placeholders in the editorState when the component mounts and then
           merges them with the new ones that came down as props
