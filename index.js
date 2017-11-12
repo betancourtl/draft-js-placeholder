@@ -12,7 +12,6 @@ import {
   mergePlaceholdersWithExisting,
   findPlaceholderStrategy,
   removePlaceholderEntities,
-  logRaw,
   PlaceholderDecorator,
 } from './src';
 import PlaceholderDashboard from './src/PlaceholderDashboard';
@@ -150,7 +149,6 @@ class MyEditor extends React.Component {
         </div>
         <div
           className="content"
-          onDoubleClick={() => logRaw(this.state.editorState)}
           onClick={this.focus}
         >
           <div className="editor">
