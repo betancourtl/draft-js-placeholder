@@ -195,8 +195,6 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this2 = this;
-
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'wrapper' },
@@ -222,9 +220,6 @@
 	          'div',
 	          {
 	            className: 'content',
-	            onDoubleClick: function onDoubleClick() {
-	              return (0, _src.logRaw)(_this2.state.editorState);
-	            },
 	            onClick: this.focus
 	          },
 	          _react2.default.createElement(
