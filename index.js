@@ -8,6 +8,7 @@ import {
   replacePlaceholders,
   createPlaceholder,
   createPlaceholderEntity,
+  applyPlaceholderEntityToSelection,
 } from './src';
 import PlaceholderDashboard from './src/PlaceholderDashboard';
 import { findPlaceholderStrategy, logRaw, PlaceholderDecorator } from "./src/index";
@@ -34,6 +35,7 @@ const initialEditorState = new RawContentState()
   .addEntity(entity1)
   .addBlock('Betancourt')
   .addEntity(entity2)
+  .addBlock('Block 3')
   .toEditorState(compositeDecorator);
 
 class MyEditor extends React.Component {
@@ -44,7 +46,9 @@ class MyEditor extends React.Component {
       placeholders: initialPlaceholders,
     };
 
-    this.onChange = editorState => this.setState({ editorState });
+    this.onChange = editorState => {
+      this.setState({ editorState });
+    };
   }
 
   replaceEntities = () => {
@@ -77,6 +81,12 @@ class MyEditor extends React.Component {
     this.setState({ placeholders });
   };
 
+  applyPlaceholder = (name, value) => {
+    const editorState = this.state.editorState;
+    const newEditorState = applyPlaceholderEntityToSelection(name, value, editorState);
+    this.setState({ editorState: newEditorState }, this.replaceEntities);
+  };
+
   render() {
     return (
       <div>
@@ -85,6 +95,7 @@ class MyEditor extends React.Component {
           onChange={this.updatePlaceholder}
           replaceEntities={this.replaceEntities}
           addPlaceholder={this.addPlaceholder}
+          applyPlaceholder={this.applyPlaceholder}
         />
         <div
           style={{ marginTop: '40px' }}

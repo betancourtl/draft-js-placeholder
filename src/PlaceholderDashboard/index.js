@@ -14,6 +14,9 @@ const Placeholder = props => {
         onKeyDown={e => e.keyCode === 13 && props.onEnter()}
         value={props.value}
       />
+      <button onClick={() => props.applyPlaceholder(props.name, props.value)}>
+        Add
+      </button>
     </div>
   );
 };
@@ -29,6 +32,7 @@ class PlaceholderDashboard extends React.Component {
               <Placeholder
                 onChange={this.props.onChange(i)}
                 onEnter={this.props.replaceEntities}
+                applyPlaceholder={this.props.applyPlaceholder}
                 key={i}
                 name={item.name}
                 value={item.value}

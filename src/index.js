@@ -1,9 +1,6 @@
 import React from 'react';
 import { EditorState, convertToRaw, Modifier, SelectionState } from 'draft-js';
 
-// TODO: [] create a decorator component
-// TODO: [] create a placeholder interface
-
 const PLACEHOLDER_TYPE = 'placeholder';
 const PLACEHOLDER_MUTABILITY = 'IMMUTABLE';
 
@@ -16,7 +13,7 @@ export const createPlaceholderEntity = (data = {}) => ({
   type: PLACEHOLDER_TYPE,
   mutability: PLACEHOLDER_MUTABILITY,
   data: {
-    placeholder: createPlaceholder(data.name, data.value),
+    [PLACEHOLDER_TYPE]: createPlaceholder(data.name, data.value),
   },
 });
 
@@ -36,14 +33,14 @@ export const replacePlaceholder = (
   if (!key) return char;
 
   const data = contentState.getEntity(key).getData();
-  const { name, value } = data.placeholder;
+  const { name, value } = data[PLACEHOLDER_TYPE];
   const newData = placeholders.find((item = {}) => name === item.name && item.value !== value);
 
   // data did not change
   if (!newData) return char;
 
   // I think the contentState does not need to be returned because entityMap is not immutable
-  contentState.mergeEntityData(key, { placeholder: { ...newData } });
+  contentState.mergeEntityData(key, { [PLACEHOLDER_TYPE]: { ...newData } });
   return char;
 };
 
@@ -93,7 +90,7 @@ export const replacePlaceholders = (editorState, placeholders = []) => {
       const newStart = start - diff;
       const newEnd = end - diff;
       const currentBlock = contentState1.getBlockForKey(blockKey);
-      const { value } = contentState1.getEntity(key).getData().placeholder;
+      const { value } = contentState1.getEntity(key).getData()[PLACEHOLDER_TYPE];
 
       const newRange = {
         anchorOffset: newStart,
@@ -102,11 +99,15 @@ export const replacePlaceholders = (editorState, placeholders = []) => {
         focusKey: blockKey,
       };
 
+      const selection = SelectionState.createEmpty(blockKey).merge(newRange);
+
+      const inlineStyle = currentBlock.getInlineStyleAt(start);
+
       const contentState2 = Modifier.replaceText(
         contentState1,
-        SelectionState.createEmpty(blockKey).merge(newRange),
+        selection,
         value,
-        currentBlock.getInlineStyleAt(start),
+        inlineStyle,
         key
       );
 
@@ -124,7 +125,8 @@ export const replacePlaceholders = (editorState, placeholders = []) => {
     blockMap: blockMap.merge(newBlocks),
   });
 
-  return EditorState.push(editorState, newContentState, 'apply-entity');
+  const newEditorState = EditorState.push(editorState, newContentState, 'apply-entity');
+  return EditorState.set(newEditorState, { forceSelection: false });
 };
 
 export const PlaceholderDecorator = props => {
@@ -141,6 +143,19 @@ export const PlaceholderDecorator = props => {
     >
       {props.children}
     </span>
+  );
+};
+
+export const applyPlaceholderEntityToSelection = (name, value, editorState) => {
+  const contentState = editorState.getCurrentContent();
+  const selection = editorState.getSelection();
+  const { type, mutability, data } = createPlaceholderEntity(createPlaceholder(name, value));
+  const newContentState = contentState.createEntity(type, mutability, data);
+  const key = newContentState.getLastCreatedEntityKey();
+  return EditorState.push(
+    editorState,
+    Modifier.applyEntity(newContentState, selection, key),
+    'apply-entity'
   );
 };
 
