@@ -15,21 +15,7 @@ import {
   PlaceholderDecorator,
 } from './src';
 import PlaceholderDashboard from './src/PlaceholderDashboard';
-
-const initialPlaceholders = [
-  createPlaceholder('chance', 'Will'),
-  createPlaceholder('product', 'Garcinia Extreme'),
-  createPlaceholder('goal', 'loosing weight'),
-];
 import './styles.css';
-
-const chance = createPlaceholderEntity(initialPlaceholders[0]);
-const product = createPlaceholderEntity(initialPlaceholders[1]);
-const goal = createPlaceholderEntity(initialPlaceholders[2]);
-const existing = createPlaceholderEntity(createPlaceholder(
-  'existing',
-  'already existing and not in placholders')
-);
 
 const compositeDecorator = new CompositeDecorator([
   {
@@ -39,30 +25,11 @@ const compositeDecorator = new CompositeDecorator([
 ]);
 
 class MyEditor extends React.Component {
-  constructor() {
-    super();
-    const initialEditorState = new RawContentState()
-      .addBlock('May Help With', 'header-two')
-      .addEntity(chance, 0, 3)
-      .addBlock('goal', 'header-two')
-      .addEntity(goal, 0, 4)
-      .addBlock('BL Demo Product is a triple-threat natural health supplement.')
-      .addEntity(product, 0, 15)
-      .addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.')
-      .addEntity(product, 63, 15)
-      .addBlock('May Manage Stress', 'unordered-list-item')
-      .addEntity(chance, 0, 3)
-      .addBlock('May Suppress Appetite', 'unordered-list-item')
-      .addEntity(chance, 0, 3)
-      .addBlock('May Improve Vitality And Energy', 'unordered-list-item')
-      .addEntity(chance, 0, 3)
-      .addBlock('x')
-      .addEntity(existing, 0, 3)
-      .toEditorState(compositeDecorator);
-
+  constructor(props) {
+    super(props.editorState);
     this.state = {
-      editorState: initialEditorState,
-      placeholders: initialPlaceholders,
+      editorState: props.editorState,
+      placeholders: props.placeholders,
       decoratorOn: false,
     };
 
@@ -73,7 +40,7 @@ class MyEditor extends React.Component {
   componentWillMount() {
     const placeholders = mergePlaceholdersWithExisting(
       this.state.editorState,
-      initialPlaceholders,
+      this.props.placeholders,
     );
 
     this.setState({ placeholders }, this.replaceEntities);
@@ -133,8 +100,11 @@ class MyEditor extends React.Component {
 
   render() {
     return (
-      <div className="wrapper">
-        <div className="sidebar">
+      <div
+        className="wrapper"
+        onClick={this.props.setActiveEditor}
+      >
+        {this.props.isActive && <div className="sidebar">
           <button onClick={this.toggleDecorators}>
             Toggle Decorator {this.state.decoratorOn ? 'on' : 'off'}
           </button>
@@ -147,21 +117,122 @@ class MyEditor extends React.Component {
             applyPlaceholder={this.applyPlaceholder}
           />
         </div>
+        }
         <div
-          className="content"
+          className="editor"
           onClick={this.focus}
         >
-          <div className="editor">
-            <Editor
-              ref={this.setDomEditorRef}
-              editorState={this.state.editorState}
-              onChange={this.onChange}
-            />
-          </div>
+          <Editor
+            ref={this.setDomEditorRef}
+            editorState={this.state.editorState}
+            onChange={this.onChange}
+          />
         </div>
       </div>
     );
   }
 }
 
-ReactDOM.render(<MyEditor/>, document.querySelector('.container'));
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      activeEditor: 1,
+    };
+  }
+
+  setActiveEditor = id => () => {
+    if (id === this.state.activeEditor) return;
+    this.setState({ activeEditor: id });
+  };
+
+  render() {
+    const placeholders1 = [
+      createPlaceholder('chance', 'Could'),
+      createPlaceholder('product', 'Green Coffee'),
+      createPlaceholder('goal', 'running faster'),
+    ];
+
+    const chance = createPlaceholderEntity(placeholders1[0]);
+    const product = createPlaceholderEntity(placeholders1[1]);
+    const goal = createPlaceholderEntity(placeholders1[2]);
+    const existing = createPlaceholderEntity(createPlaceholder(
+      'existing',
+      'already existing and not in placholders')
+    );
+
+    const editorState1 = new RawContentState()
+      .addBlock('May Help With', 'header-two')
+      .addEntity(chance, 0, 3)
+      .addBlock('goal', 'header-two')
+      .addEntity(goal, 0, 4)
+      .addBlock('BL Demo Product is a triple-threat natural health supplement.')
+      .addEntity(product, 0, 15)
+      .addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.')
+      .addEntity(product, 63, 15)
+      .addBlock('May Manage Stress', 'unordered-list-item')
+      .addEntity(chance, 0, 3)
+      .addBlock('May Suppress Appetite', 'unordered-list-item')
+      .addEntity(chance, 0, 3)
+      .addBlock('May Improve Vitality And Energy', 'unordered-list-item')
+      .addEntity(chance, 0, 3)
+      .addBlock('x')
+      .addEntity(existing, 0, 3)
+      .toEditorState(compositeDecorator);
+
+    const placeholders2 = [
+      createPlaceholder('chance', 'Will'),
+      createPlaceholder('product', 'Garcinia Extreme'),
+      createPlaceholder('goal', 'loosing weight'),
+    ];
+
+    const chance2 = createPlaceholderEntity(placeholders1[0]);
+    const product2 = createPlaceholderEntity(placeholders1[1]);
+    const goal2 = createPlaceholderEntity(placeholders1[2]);
+    const existing2 = createPlaceholderEntity(createPlaceholder(
+      'existing',
+      'already existing and not in placholders')
+    );
+
+    const editorState2 = new RawContentState()
+      .addBlock('May Help With', 'header-two')
+      .addEntity(chance2, 0, 3)
+      .addBlock('goal', 'header-two')
+      .addEntity(goal2, 0, 4)
+      .addBlock('BL Demo Product is a triple-threat natural health supplement.')
+      .addEntity(product2, 0, 15)
+      .addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.')
+      .addEntity(product2, 63, 15)
+      .addBlock('May Manage Stress', 'unordered-list-item')
+      .addEntity(chance2, 0, 3)
+      .addBlock('May Suppress Appetite', 'unordered-list-item')
+      .addEntity(chance2, 0, 3)
+      .addBlock('May Improve Vitality And Energy', 'unordered-list-item')
+      .addEntity(chance2, 0, 3)
+      .addBlock('x')
+      .addEntity(existing2, 0, 3)
+      .toEditorState(compositeDecorator);
+    return (
+      <div>
+        <div className="content">
+          <MyEditor
+            editorKey={1}
+            setActiveEditor={this.setActiveEditor(1)}
+            isActive={this.state.activeEditor === 1}
+            editorState={editorState1}
+            placeholders={placeholders1}
+          />
+          <MyEditor
+            editorKey={2}
+            setActiveEditor={this.setActiveEditor(2)}
+            isActive={this.state.activeEditor === 2}
+            editorState={editorState2}
+            placeholders={placeholders2}
+          />
+        </div>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<App/>, document.querySelector('.container'));
