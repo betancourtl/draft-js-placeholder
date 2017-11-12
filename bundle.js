@@ -154,11 +154,18 @@
 	      _this.setState({ editorState: newEditorState }, _this.replaceEntities);
 	    };
 
+	    _this.toggleDecorators = function () {
+	      var decorator = _this.state.decoratorOn ? compositeDecorator : null;
+	      var editorState = _draftJs.EditorState.set(_this.state.editorState, { decorator: decorator });
+	      _this.setState({ editorState: editorState, decoratorOn: !_this.state.decoratorOn });
+	    };
+
 	    var initialEditorState = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('x').addEntity(existing, 0, 3).toEditorState(compositeDecorator);
 
 	    _this.state = {
 	      editorState: initialEditorState,
-	      placeholders: initialPlaceholders
+	      placeholders: initialPlaceholders,
+	      decoratorOn: false
 	    };
 
 	    _this.onChange = function (editorState) {
@@ -190,6 +197,12 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
+	        _react2.default.createElement(
+	          'button',
+	          { onClick: this.toggleDecorators },
+	          'Toggle Decorator ',
+	          this.state.decoratorOn ? 'on' : 'off'
+	        ),
 	        _react2.default.createElement(
 	          'h3',
 	          null,
@@ -41335,7 +41348,7 @@
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-	var PLACEHOLDER_TYPE = 'placeholder';
+	var PLACEHOLDER_TYPE = 'mentions';
 	var PLACEHOLDER_MUTABILITY = 'IMMUTABLE';
 
 	var logRaw = exports.logRaw = function logRaw(editorState) {
@@ -41454,7 +41467,7 @@
 
 	      var inlineStyle = currentBlock.getInlineStyleAt(start);
 
-	      var contentState2 = _draftJs.Modifier.replaceText(contentState1, selection, value || ' ', // value us empty
+	      var contentState2 = _draftJs.Modifier.replaceText(contentState1, selection, value || ' ', // value is empty
 	      inlineStyle, key);
 
 	      var newDiff = newEnd - newStart - value.length;
