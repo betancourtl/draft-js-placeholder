@@ -30,7 +30,7 @@ class MyEditor extends React.Component {
     this.state = {
       editorState: props.editorState,
       placeholders: props.placeholders,
-      decoratorOn: false,
+      decoratorOn: true,
     };
 
     this.onChange = editorState => this.setState({ editorState });
@@ -43,8 +43,16 @@ class MyEditor extends React.Component {
       this.props.placeholders,
     );
 
-    this.setState({ placeholders }, this.replaceEntities);
+    this.setState({ placeholders }, () => {
+      this.replaceEntitiesAndToggleDecorator();
+    });
   }
+
+  replaceEntitiesAndToggleDecorator = () => {
+    const decorator = this.props.isActive ? compositeDecorator : null;
+    const editorState = EditorState.set(replacePlaceholders(this.state.editorState, this.state.placeholders), { decorator });
+    this.setState({ editorState });
+  };
 
   componentDidMount() {
     this.domEditor.focus();
@@ -90,13 +98,22 @@ class MyEditor extends React.Component {
     this.setState({ editorState: newEditorState }, this.replaceEntities);
   };
 
-  toggleDecorators = () => {
-    const decorator = this.state.decoratorOn
-      ? compositeDecorator
-      : null;
+  toggleDecorators = cond => {
+    const decorator = cond ? compositeDecorator : null;
     const editorState = EditorState.set(this.state.editorState, { decorator });
-    this.setState({ editorState, decoratorOn: !this.state.decoratorOn });
+    this.setState({ editorState });
   };
+
+  componentWillReceiveProps(nextProps) {
+    const wasActive = this.props.isActive;
+    const isActive = nextProps.isActive;
+    if (!wasActive && isActive) {
+      this.toggleDecorators(true);
+    }
+    if (wasActive && !isActive) {
+      this.toggleDecorators(false);
+    }
+  }
 
   render() {
     return (
@@ -105,9 +122,6 @@ class MyEditor extends React.Component {
         onClick={this.props.setActiveEditor}
       >
         {this.props.isActive && <div className="sidebar">
-          <button onClick={this.toggleDecorators}>
-            Toggle Decorator {this.state.decoratorOn ? 'on' : 'off'}
-          </button>
           <PlaceholderDashboard
             placeholders={this.state.placeholders}
             onChange={this.updatePlaceholder}
@@ -182,8 +196,8 @@ class App extends React.Component {
       .addBlock('May Improve Vitality And Energy', 'unordered-list-item')
       .addEntity(chance, 0, 3)
       .addBlock('x')
-      .addEntity(existing, 0, 3)
-      .toEditorState(compositeDecorator);
+      .addEntity(existing, 0)
+      .toEditorState();
 
     const placeholders2 = [
       createPlaceholder('chance', 'Will'),
@@ -215,8 +229,8 @@ class App extends React.Component {
       .addBlock('May Improve Vitality And Energy', 'unordered-list-item')
       .addEntity(chance2, 0, 3)
       .addBlock('x')
-      .addEntity(existing2, 0, 3)
-      .toEditorState(compositeDecorator);
+      .addEntity(existing2)
+      .toEditorState();
     return (
       <div>
         <div className="content">
