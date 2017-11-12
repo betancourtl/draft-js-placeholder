@@ -88,13 +88,11 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint-disable import/no-extraneous-dependencies */
 
 
-	var initialPlaceholders = [(0, _src.createPlaceholder)('firstName', 'Luis'), (0, _src.createPlaceholder)('lastName', 'Betancourt'), (0, _src.createPlaceholder)('job', 'programmer')];
+	var initialPlaceholders = [(0, _src.createPlaceholder)('chance', 'Will'), (0, _src.createPlaceholder)('product', 'Garcinia Extreme'), (0, _src.createPlaceholder)('goal', 'loosing weight')];
 
-	var initialPlaceholders2 = [(0, _src.createPlaceholder)('firstName', 'Raul'), (0, _src.createPlaceholder)('lastName', 'Es'), (0, _src.createPlaceholder)('job', 'El Mejor')];
-
-	var entity1 = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('firstName', 'Cristian'));
-	var entity2 = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('lastName', 'Graziano'));
-	var entity3 = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('job', 'student'));
+	var chance = (0, _src.createPlaceholderEntity)(initialPlaceholders[0]);
+	var product = (0, _src.createPlaceholderEntity)(initialPlaceholders[1]);
+	var goal = (0, _src.createPlaceholderEntity)(initialPlaceholders[2]);
 
 	var compositeDecorator = new _draftJs.CompositeDecorator([{
 	  strategy: _index.findPlaceholderStrategy,
@@ -124,19 +122,25 @@
 	      var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
 	      var oldPlaceholders = _this.state.placeholders;
-	      var createName = function createName(_name, placeholders) {
-	        var index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+	      var found = oldPlaceholders.find(function (x) {
+	        return x.name === name;
+	      });
+	      if (found) {
+	        return;
+	      }
 
-	        var found = placeholders.find(function (x) {
-	          return x.name === _name;
-	        });
-	        if (found) {
-	          return createName('placeholder' + index, placeholders, index + 1);
-	        }
-	        return _name;
-	      };
+	      var placeholders = [].concat(_toConsumableArray(oldPlaceholders), [(0, _src.createPlaceholder)(name, value)]);
 
-	      var placeholders = [].concat(_toConsumableArray(oldPlaceholders), [(0, _src.createPlaceholder)(createName(name, oldPlaceholders), value)]);
+	      _this.setState({ placeholders: placeholders });
+	    };
+
+	    _this.removePlaceholder = function () {
+	      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
+	      var oldPlaceholders = _this.state.placeholders;
+	      var placeholders = oldPlaceholders.filter(function (x) {
+	        return x.name !== name;
+	      });
 
 	      _this.setState({ placeholders: placeholders });
 	    };
@@ -155,7 +159,7 @@
 	      _this.setState({ editorState: newEditorState }, _this.replaceEntities);
 	    };
 
-	    var initialEditorState = new _draftJsRawContentState2.default().addBlock('Luis').addEntity(entity1).addBlock('Betancourt').addEntity(entity2).addBlock('Block 3').toEditorState(compositeDecorator);
+	    var initialEditorState = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).toEditorState(compositeDecorator);
 
 	    _this.state = {
 	      editorState: initialEditorState,
@@ -175,13 +179,7 @@
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      this.domEditor.focus();
-	    }
-	  }, {
-	    key: 'componentDidUpdate',
-	    value: function componentDidUpdate(prevProps, prevState) {
-	      if (JSON.stringify(prevState.placeholders) !== JSON.stringify(this.state.placeholders)) {
-	        this.replaceEntities();
-	      }
+	      this.replaceEntities();
 	    }
 	  }, {
 	    key: 'render',
@@ -191,14 +189,12 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement('button', { onClick: function onClick() {
-	            return _this2.setState({ placeholders: initialPlaceholders2 });
-	          } }),
 	        _react2.default.createElement(_PlaceholderDashboard2.default, {
 	          placeholders: this.state.placeholders,
 	          onChange: this.updatePlaceholder,
 	          replaceEntities: this.replaceEntities,
 	          addPlaceholder: this.addPlaceholder,
+	          removePlaceholder: this.removePlaceholder,
 	          applyPlaceholder: this.applyPlaceholder
 	        }),
 	        _react2.default.createElement(
@@ -41448,7 +41444,8 @@
 
 	      var inlineStyle = currentBlock.getInlineStyleAt(start);
 
-	      var contentState2 = _draftJs.Modifier.replaceText(contentState1, selection, value, inlineStyle, key);
+	      var contentState2 = _draftJs.Modifier.replaceText(contentState1, selection, value || ' ', // value us empty
+	      inlineStyle, key);
 
 	      var newDiff = newEnd - newStart - value.length;
 	      return {
@@ -41542,7 +41539,8 @@
 	    null,
 	    _react2.default.createElement('input', {
 	      type: 'text',
-	      defaultValue: props.name
+	      defaultValue: props.name,
+	      disabled: true
 	    }),
 	    _react2.default.createElement('input', {
 	      type: 'text',
@@ -41560,6 +41558,13 @@
 	          return props.applyPlaceholder(props.name, props.value);
 	        } },
 	      'Add'
+	    ),
+	    _react2.default.createElement(
+	      'button',
+	      { onClick: function onClick() {
+	          return props.removePlaceholder(props.name);
+	        } },
+	      'Remove'
 	    )
 	  );
 	};
@@ -41570,7 +41575,12 @@
 	  function PlaceholderDashboard() {
 	    _classCallCheck(this, PlaceholderDashboard);
 
-	    return _possibleConstructorReturn(this, (PlaceholderDashboard.__proto__ || Object.getPrototypeOf(PlaceholderDashboard)).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, (PlaceholderDashboard.__proto__ || Object.getPrototypeOf(PlaceholderDashboard)).call(this));
+
+	    _this.state = {
+	      name: ''
+	    };
+	    return _this;
 	  }
 
 	  _createClass(PlaceholderDashboard, [{
@@ -41588,22 +41598,34 @@
 	            onChange: _this2.props.onChange(i),
 	            onEnter: _this2.props.replaceEntities,
 	            applyPlaceholder: _this2.props.applyPlaceholder,
+	            removePlaceholder: _this2.props.removePlaceholder,
 	            key: i,
 	            name: item.name,
 	            value: item.value
 	          });
 	        }),
 	        _react2.default.createElement(
-	          'button',
-	          { onClick: this.props.replaceEntities },
-	          'replace entities'
-	        ),
-	        _react2.default.createElement(
-	          'button',
-	          { onClick: function onClick() {
-	              return _this2.props.addPlaceholder();
-	            } },
-	          'Add Placeholder'
+	          'div',
+	          null,
+	          _react2.default.createElement('input', {
+	            type: 'text',
+	            value: this.state.value,
+	            onChange: function onChange(e) {
+	              return _this2.setState({ name: e.target.value });
+	            },
+	            onKeyDown: function onKeyDown(e) {
+	              return e.keyCode === 13 && _this2.props.addPlaceholder(_this2.state.name);
+	            }
+	          }),
+	          _react2.default.createElement(
+	            'button',
+	            {
+	              onClick: function onClick() {
+	                return _this2.props.addPlaceholder(_this2.state.name);
+	              }
+	            },
+	            'Add Placeholder'
+	          )
 	        )
 	      );
 	    }
