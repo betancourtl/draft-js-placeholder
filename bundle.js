@@ -65,17 +65,15 @@
 
 	var _draftJs = __webpack_require__(186);
 
-	var _draftJsRawContentState = __webpack_require__(320);
+	var _src = __webpack_require__(320);
 
-	var _draftJsRawContentState2 = _interopRequireDefault(_draftJsRawContentState);
-
-	var _src = __webpack_require__(325);
-
-	var _PlaceholderDashboard = __webpack_require__(326);
+	var _PlaceholderDashboard = __webpack_require__(321);
 
 	var _PlaceholderDashboard2 = _interopRequireDefault(_PlaceholderDashboard);
 
-	__webpack_require__(331);
+	var _helpers = __webpack_require__(326);
+
+	__webpack_require__(332);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -93,31 +91,90 @@
 	  component: _src.PlaceholderDecorator
 	}]);
 
-	var MyEditor = function (_React$Component) {
-	  _inherits(MyEditor, _React$Component);
+	var editorState1 = (0, _helpers.config1)();
+	var editorState2 = (0, _helpers.config2)();
+	var editorState3 = (0, _helpers.config1)();
+	var editorState4 = (0, _helpers.config2)();
+	var editorState5 = (0, _helpers.config1)();
+
+	var editors = [editorState1, editorState2, editorState3, editorState4, editorState5];
+
+	var App = function (_React$Component) {
+	  _inherits(App, _React$Component);
+
+	  function App() {
+	    _classCallCheck(this, App);
+
+	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
+
+	    _this.setActiveEditor = function (id) {
+	      return function () {
+	        if (id === _this.state.activeEditor) return;
+	        _this.setState({ activeEditor: id });
+	      };
+	    };
+
+	    _this.state = {
+	      activeEditor: 1
+	    };
+	    return _this;
+	  }
+
+	  _createClass(App, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'content' },
+	          editors.map(function (item, index) {
+	            var editorKey = index + 1;
+	            return _react2.default.createElement(MyEditor, {
+	              key: editorKey,
+	              editorKey: editorKey,
+	              setActiveEditor: _this2.setActiveEditor(editorKey),
+	              isActive: _this2.state.activeEditor === editorKey,
+	              editorState: item.editorState,
+	              placeholders: item.placeholders
+	            });
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return App;
+	}(_react2.default.Component);
+
+	var MyEditor = function (_React$Component2) {
+	  _inherits(MyEditor, _React$Component2);
 
 	  function MyEditor(props) {
 	    _classCallCheck(this, MyEditor);
 
-	    var _this = _possibleConstructorReturn(this, (MyEditor.__proto__ || Object.getPrototypeOf(MyEditor)).call(this, props.editorState));
+	    var _this3 = _possibleConstructorReturn(this, (MyEditor.__proto__ || Object.getPrototypeOf(MyEditor)).call(this, props));
 
-	    _this.replaceEntitiesAndToggleDecorator = function () {
-	      var decorator = _this.props.isActive ? compositeDecorator : null;
-	      var editorState = _draftJs.EditorState.set((0, _src.replacePlaceholders)(_this.state.editorState, _this.state.placeholders), { decorator: decorator });
-	      _this.setState({ editorState: editorState });
-	    };
-
-	    _this.replaceEntities = function () {
-	      _this.setState({
-	        editorState: (0, _src.replacePlaceholders)(_this.state.editorState, _this.state.placeholders)
+	    _this3.replaceEntities = function () {
+	      _this3.setState({
+	        editorState: (0, _src.replacePlaceholders)(_this3.state.editorState, _this3.state.placeholders)
 	      });
 	    };
 
-	    _this.addPlaceholder = function () {
+	    _this3.replaceEntitiesAndToggleDecorator = function () {
+	      var decorator = _this3.props.isActive ? compositeDecorator : null;
+	      var editorState = _draftJs.EditorState.set((0, _src.replacePlaceholders)(_this3.state.editorState, _this3.state.placeholders), { decorator: decorator });
+	      _this3.setState({ editorState: editorState });
+	    };
+
+	    _this3.addPlaceholder = function () {
 	      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 	      var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
-	      var oldPlaceholders = _this.state.placeholders;
+	      var oldPlaceholders = _this3.state.placeholders;
 	      var found = oldPlaceholders.find(function (x) {
 	        return x.name === name;
 	      });
@@ -127,64 +184,64 @@
 
 	      var placeholders = [].concat(_toConsumableArray(oldPlaceholders), [(0, _src.createPlaceholder)(name, value)]);
 
-	      _this.setState({ placeholders: placeholders });
+	      _this3.setState({ placeholders: placeholders });
 	    };
 
-	    _this.removePlaceholder = function () {
+	    _this3.removePlaceholder = function () {
 	      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
-	      var oldPlaceholders = _this.state.placeholders;
+	      var oldPlaceholders = _this3.state.placeholders;
 	      var placeholders = oldPlaceholders.filter(function (x) {
 	        return x.name !== name;
 	      });
-	      var editorState = (0, _src.removePlaceholderEntities)(_this.state.editorState, name);
-	      _this.setState({ placeholders: placeholders, editorState: editorState });
+	      var editorState = (0, _src.removePlaceholderEntities)(_this3.state.editorState, name);
+	      _this3.setState({ placeholders: placeholders, editorState: editorState });
 	    };
 
-	    _this.updatePlaceholder = function (index) {
+	    _this3.updatePlaceholder = function (index) {
 	      return function (value) {
-	        var placeholders = [].concat(_toConsumableArray(_this.state.placeholders));
+	        var placeholders = [].concat(_toConsumableArray(_this3.state.placeholders));
 	        placeholders[index].value = value;
-	        _this.setState({ placeholders: placeholders });
+	        _this3.setState({ placeholders: placeholders });
 	      };
 	    };
 
-	    _this.applyPlaceholder = function (name, value) {
-	      var editorState = _this.state.editorState;
+	    _this3.applyPlaceholder = function (name, value) {
+	      var editorState = _this3.state.editorState;
 	      var newEditorState = (0, _src.applyPlaceholderEntityToSelection)(name, value, editorState);
-	      _this.setState({ editorState: newEditorState }, _this.replaceEntities);
+	      _this3.setState({ editorState: newEditorState }, _this3.replaceEntities);
 	    };
 
-	    _this.toggleDecorators = function (cond) {
+	    _this3.toggleDecorators = function (cond) {
 	      var decorator = cond ? compositeDecorator : null;
-	      var editorState = _draftJs.EditorState.set(_this.state.editorState, { decorator: decorator });
-	      _this.setState({ editorState: editorState });
+	      var editorState = _draftJs.EditorState.set(_this3.state.editorState, { decorator: decorator });
+	      _this3.setState({ editorState: editorState });
 	    };
 
-	    _this.state = {
+	    _this3.state = {
 	      editorState: props.editorState,
 	      placeholders: props.placeholders,
 	      decoratorOn: true
 	    };
 
-	    _this.onChange = function (editorState) {
-	      return _this.setState({ editorState: editorState });
+	    _this3.onChange = function (editorState) {
+	      return _this3.setState({ editorState: editorState });
 	    };
-	    _this.setDomEditorRef = function (ref) {
-	      return _this.domEditor = ref;
+	    _this3.setDomEditorRef = function (ref) {
+	      return _this3.domEditor = ref;
 	    };
-	    return _this;
+	    return _this3;
 	  }
 
 	  _createClass(MyEditor, [{
 	    key: 'componentWillMount',
 	    value: function componentWillMount() {
-	      var _this2 = this;
+	      var _this4 = this;
 
-	      var placeholders = (0, _src.mergePlaceholdersWithExisting)(this.state.editorState, this.props.placeholders);
+	      var placeholders = (0, _src.mergePlaceholdersWithExisting)(this.state.editorState, [].concat(_toConsumableArray(this.props.placeholders)));
 
 	      this.setState({ placeholders: placeholders }, function () {
-	        _this2.replaceEntitiesAndToggleDecorator();
+	        _this4.replaceEntitiesAndToggleDecorator();
 	      });
 	    }
 	  }, {
@@ -256,96 +313,6 @@
 	  }]);
 
 	  return MyEditor;
-	}(_react2.default.Component);
-
-	var App = function (_React$Component2) {
-	  _inherits(App, _React$Component2);
-
-	  function App() {
-	    _classCallCheck(this, App);
-
-	    var _this3 = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
-
-	    _this3.setActiveEditor = function (id) {
-	      return function () {
-	        if (id === _this3.state.activeEditor) return;
-	        _this3.setState({ activeEditor: id });
-	      };
-	    };
-
-	    _this3.state = {
-	      activeEditor: 1
-	    };
-	    return _this3;
-	  }
-
-	  _createClass(App, [{
-	    key: 'render',
-	    value: function render() {
-	      var placeholders1 = [(0, _src.createPlaceholder)('chance', 'Could'), (0, _src.createPlaceholder)('product', 'Green Coffee'), (0, _src.createPlaceholder)('goal', 'running faster')];
-
-	      var chance = (0, _src.createPlaceholderEntity)(placeholders1[0]);
-	      var product = (0, _src.createPlaceholderEntity)(placeholders1[1]);
-	      var goal = (0, _src.createPlaceholderEntity)(placeholders1[2]);
-	      var existing = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
-
-	      var editorState1 = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('x').addEntity(existing, 0).toEditorState();
-
-	      var placeholders2 = [(0, _src.createPlaceholder)('chance', 'Will'), (0, _src.createPlaceholder)('product', 'Garcinia Extreme'), (0, _src.createPlaceholder)('goal', 'loosing weight')];
-
-	      var chance2 = (0, _src.createPlaceholderEntity)(placeholders1[0]);
-	      var product2 = (0, _src.createPlaceholderEntity)(placeholders1[1]);
-	      var goal2 = (0, _src.createPlaceholderEntity)(placeholders1[2]);
-	      var existing2 = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
-
-	      var editorState2 = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance2, 0, 3).addBlock('goal', 'header-two').addEntity(goal2, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product2, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product2, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('x').addEntity(existing2).toEditorState();
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'div',
-	          { className: 'content' },
-	          _react2.default.createElement(MyEditor, {
-	            editorKey: 1,
-	            setActiveEditor: this.setActiveEditor(1),
-	            isActive: this.state.activeEditor === 1,
-	            editorState: editorState1,
-	            placeholders: placeholders1
-	          }),
-	          _react2.default.createElement(MyEditor, {
-	            editorKey: 2,
-	            setActiveEditor: this.setActiveEditor(2),
-	            isActive: this.state.activeEditor === 2,
-	            editorState: editorState2,
-	            placeholders: placeholders2
-	          }),
-	          _react2.default.createElement(MyEditor, {
-	            editorKey: 3,
-	            setActiveEditor: this.setActiveEditor(3),
-	            isActive: this.state.activeEditor === 3,
-	            editorState: editorState1,
-	            placeholders: placeholders1
-	          }),
-	          _react2.default.createElement(MyEditor, {
-	            editorKey: 4,
-	            setActiveEditor: this.setActiveEditor(4),
-	            isActive: this.state.activeEditor === 4,
-	            editorState: editorState2,
-	            placeholders: placeholders2
-	          }),
-	          _react2.default.createElement(MyEditor, {
-	            editorKey: 5,
-	            setActiveEditor: this.setActiveEditor(5),
-	            isActive: this.state.activeEditor === 5,
-	            editorState: editorState1,
-	            placeholders: placeholders1
-	          })
-	        )
-	      );
-	    }
-	  }]);
-
-	  return App;
 	}(_react2.default.Component);
 
 	_reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.container'));
@@ -41152,294 +41119,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.RawContentState = undefined;
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _draftJs = __webpack_require__(186);
-
-	var _blockTypes = __webpack_require__(321);
-
-	var _createEntity = __webpack_require__(322);
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	/**
-	 * Helper library for manipulating raw contentStates, the intention is to
-	 * reduce the boilerplate code being generated using the native draft-js API.
-	 * This makes testing way easier and more enjoyable.
-	 */
-
-	var RawContentState = exports.RawContentState = function RawContentState(rawContentState) {
-	  this.selection = {};
-	  this.entityMap = {};
-	  this.blocks = [];
-	  if (rawContentState) {
-	    this.blocks = rawContentState.blocks;
-	    this.entityMap = rawContentState.entityMap;
-	  }
-	};
-
-	// Content Block
-	RawContentState.prototype.addBlock = function () {
-	  var text = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-	  var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _blockTypes.unstyled;
-	  var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-	  var block = {
-	    key: (0, _draftJs.genKey)(),
-	    text: text,
-	    type: type,
-	    depth: 0,
-	    inlineStyleRanges: [],
-	    entityRanges: [],
-	    data: data
-	  };
-
-	  this.blocks.push(block);
-
-	  return this;
-	};
-
-	RawContentState.prototype.setKey = function (key) {
-	  var blockLength = this.blocks.length;
-
-	  this.blocks[blockLength - 1].key = key;
-
-	  return this;
-	};
-
-	RawContentState.prototype.addInlineStyle = function (styles) {
-	  var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-	  var length = arguments[2];
-
-	  var blockLength = this.blocks.length;
-
-	  var block = this.blocks[blockLength - 1];
-
-	  var newRanges = [].concat(styles).map(function (style) {
-	    return {
-	      offset: offset,
-	      length: length >= 0 ? length : block.text.length,
-	      style: style
-	    };
-	  });
-
-	  block.inlineStyleRanges = block.inlineStyleRanges.concat(newRanges);
-	  return this;
-	};
-
-	RawContentState.prototype.addEntity = function (entityData, entityOffset, entityLength) {
-
-	  if (entityOffset !== 0 && !entityOffset || !entityLength) {
-	    console.log('Entity will be applied to the whole block because\n       no entityOffset or entityLength where provided.');
-	  }
-
-	  var blockLength = this.blocks.length;
-
-	  var entityKey = Object.keys(this.entityMap).length;
-
-	  var entity = (0, _createEntity.createEntity)({
-	    data: entityData.data,
-	    type: entityData.type,
-	    mutability: entityData.mutability
-	  });
-
-	  var newEntity = _defineProperty({}, entityKey, entity);
-
-	  var entityRange = {
-	    key: entityKey,
-	    offset: entityOffset || 0,
-	    length: entityLength || this.blocks[blockLength - 1].text.length
-	  };
-
-	  this.entityMap = _extends({}, this.entityMap, newEntity);
-
-	  this.blocks[blockLength - 1].entityRanges.push(entityRange);
-
-	  return this;
-	};
-
-	RawContentState.prototype.setData = function (data) {
-	  var length = this.blocks.length;
-
-	  if (length) {
-	    this.blocks[length - 1].data = data;
-	  }
-
-	  return this;
-	};
-
-	RawContentState.prototype.setDepth = function (depth) {
-	  var length = this.blocks.length;
-
-	  if (length) {
-	    this.blocks[length - 1].depth = depth;
-	  }
-
-	  return this;
-	};
-
-	// Selection
-	RawContentState.prototype.anchorKey = function () {
-	  var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-	  var length = this.blocks.length;
-
-	  if (length) {
-	    this.selection.anchorKey = this.blocks[length - 1].key;
-	    this.selection.anchorOffset = offset;
-	  }
-
-	  return this;
-	};
-
-	RawContentState.prototype.focusKey = function () {
-	  var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-	  var length = this.blocks.length;
-	  if (length) {
-	    this.selection.focusKey = this.blocks[length - 1].key;
-	    this.selection.focusOffset = offset;
-	  }
-
-	  return this;
-	};
-
-	RawContentState.prototype.setAnchorKey = RawContentState.prototype.anchorKey;
-
-	RawContentState.prototype.setFocusKey = RawContentState.prototype.focusKey;
-
-	RawContentState.prototype.collapse = function () {
-	  var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-	  var length = this.blocks.length;
-
-	  if (length) {
-	    this.selection = {
-	      focusKey: this.blocks[length - 1].key,
-	      anchorKey: this.blocks[length - 1].key,
-	      focusOffset: offset,
-	      anchorOffset: offset
-	    };
-	  }
-
-	  return this;
-	};
-
-	RawContentState.prototype.isBackward = function () {
-	  var isBackward = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-	  var length = this.blocks.length;
-
-	  if (length) {
-	    this.selection.isBackward = isBackward;
-	  }
-
-	  return this;
-	};
-
-	// Data conversion
-	RawContentState.prototype.toRawContentState = function () {
-	  return {
-	    entityMap: this.entityMap,
-	    blocks: this.blocks
-	  };
-	};
-
-	RawContentState.prototype.toContentState = function () {
-	  return (0, _draftJs.convertFromRaw)({ entityMap: this.entityMap, blocks: this.blocks });
-	};
-
-	RawContentState.prototype.toEditorState = function (decorator) {
-	  var editorState = _draftJs.EditorState.createWithContent(this.toContentState(this.toRawContentState()), decorator);
-
-	  var selection = editorState.getSelection().merge(this.selection);
-
-	  return _draftJs.EditorState.acceptSelection(editorState, selection);
-	};
-
-	RawContentState.prototype.log = function () {
-	  console.log(JSON.stringify(this.selection, null, 2));
-	  console.log(JSON.stringify(this, null, 2));
-
-	  return this;
-	};
-
-	exports.default = RawContentState;
-
-/***/ },
-/* 321 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var h1 = exports.h1 = 'header-one';
-	var h2 = exports.h2 = 'header-two';
-	var unstyled = exports.unstyled = 'unstyled';
-
-/***/ },
-/* 322 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.createEntity = undefined;
-
-	var _types = __webpack_require__(323);
-
-	var _mutability = __webpack_require__(324);
-
-	var createEntity = exports.createEntity = function createEntity() {
-	  var entity = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	  return {
-	    data: entity.data || {},
-	    type: entity.type || _types.DEFAULT_TYPE,
-	    mutability: [_mutability.MUTABLE, _mutability.IMMUTABLE, _mutability.SEGMENTED].find(function (x) {
-	      return x === entity.mutability;
-	    }) || _mutability.MUTABLE
-	  };
-	};
-
-/***/ },
-/* 323 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var DEFAULT_TYPE = exports.DEFAULT_TYPE = 'DEFAULT_TYPE';
-
-/***/ },
-/* 324 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var MUTABLE = exports.MUTABLE = 'MUTABLE';
-	var IMMUTABLE = exports.IMMUTABLE = 'IMMUTABLE';
-	var SEGMENTED = exports.SEGMENTED = 'SEGMENTED';
-
-/***/ },
-/* 325 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	exports.removePlaceholderEntities = exports.mergePlaceholdersWithExisting = exports.findAllPlaceholders = exports.findBlockPlaceholders = exports.findPlaceholderStrategy = exports.applyPlaceholderEntityToSelection = exports.PlaceholderDecorator = exports.replacePlaceholders = exports.findPlaceholderRanges = exports.replacePlaceholder = exports.createPlaceholder = exports.createPlaceholderEntity = exports.logRaw = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -41603,12 +41282,12 @@
 	    'span',
 	    {
 	      style: {
-	        backgroundColor: '#0095ff',
+	        backgroundColor: 'rgba(0, 150, 255, 0.8)',
 	        color: '#fff',
-	        borderRadius: '5px',
 	        padding: '2px',
 	        margin: '3px',
-	        display: 'inline-block'
+	        display: 'inline-block',
+	        border: '1px solid rgba(0, 150, 255, 0.8)'
 	      }
 	    },
 	    props.children
@@ -41771,7 +41450,7 @@
 	};
 
 /***/ },
-/* 326 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41786,7 +41465,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	__webpack_require__(327);
+	__webpack_require__(322);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -41938,7 +41617,7 @@
 	exports.default = PlaceholderDashboard;
 
 /***/ },
-/* 327 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41946,10 +41625,10 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(328);
+	var content = __webpack_require__(323);
 	if (typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(330)(content, {});
+	var update = __webpack_require__(325)(content, {});
 	if (content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if (false) {
@@ -41968,10 +41647,10 @@
 	}
 
 /***/ },
-/* 328 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(329)();
+	exports = module.exports = __webpack_require__(324)();
 	// imports
 
 
@@ -41982,7 +41661,7 @@
 
 
 /***/ },
-/* 329 */
+/* 324 */
 /***/ function(module, exports) {
 
 	/*
@@ -42038,7 +41717,7 @@
 
 
 /***/ },
-/* 330 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -42290,7 +41969,347 @@
 
 
 /***/ },
+/* 326 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.config2 = exports.config1 = undefined;
+
+	var _draftJsRawContentState = __webpack_require__(327);
+
+	var _draftJsRawContentState2 = _interopRequireDefault(_draftJsRawContentState);
+
+	var _src = __webpack_require__(320);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var config1 = function config1() {
+	  var placeholders = [(0, _src.createPlaceholder)('chance', 'Could'), (0, _src.createPlaceholder)('product', 'Green Coffee'), (0, _src.createPlaceholder)('goal', 'running faster')];
+
+	  var chance = (0, _src.createPlaceholderEntity)(placeholders[0]);
+	  var product = (0, _src.createPlaceholderEntity)(placeholders[1]);
+	  var goal = (0, _src.createPlaceholderEntity)(placeholders[2]);
+	  var existing = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
+
+	  var editorState = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance, 0, 3).addBlock('goal', 'header-two').addEntity(goal, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance, 0, 3).addBlock('x').addEntity(existing, 0).toEditorState();
+
+	  return {
+	    placeholders: placeholders,
+	    editorState: editorState
+	  };
+	};
+
+	var config2 = function config2() {
+	  var placeholders = [(0, _src.createPlaceholder)('chance', 'Will'), (0, _src.createPlaceholder)('product', 'Garcinia Extreme'), (0, _src.createPlaceholder)('goal', 'loosing weight')];
+	  var chance2 = (0, _src.createPlaceholderEntity)(placeholders[0]);
+	  var product2 = (0, _src.createPlaceholderEntity)(placeholders[1]);
+	  var goal2 = (0, _src.createPlaceholderEntity)(placeholders[2]);
+	  var existing2 = (0, _src.createPlaceholderEntity)((0, _src.createPlaceholder)('existing', 'already existing and not in placholders'));
+	  var editorState = new _draftJsRawContentState2.default().addBlock('May Help With', 'header-two').addEntity(chance2, 0, 3).addBlock('goal', 'header-two').addEntity(goal2, 0, 4).addBlock('BL Demo Product is a triple-threat natural health supplement.').addEntity(product2, 0, 15).addBlock('In conjunction with a lower calorie diet and regular exercise, BL Demo Product may be just what you need.').addEntity(product2, 63, 15).addBlock('May Manage Stress', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('May Suppress Appetite', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('May Improve Vitality And Energy', 'unordered-list-item').addEntity(chance2, 0, 3).addBlock('x').addEntity(existing2).toEditorState();
+
+	  return {
+	    placeholders: placeholders,
+	    editorState: editorState
+	  };
+	};
+
+	exports.config1 = config1;
+	exports.config2 = config2;
+
+/***/ },
+/* 327 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.RawContentState = undefined;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _draftJs = __webpack_require__(186);
+
+	var _blockTypes = __webpack_require__(328);
+
+	var _createEntity = __webpack_require__(329);
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	/**
+	 * Helper library for manipulating raw contentStates, the intention is to
+	 * reduce the boilerplate code being generated using the native draft-js API.
+	 * This makes testing way easier and more enjoyable.
+	 */
+
+	var RawContentState = exports.RawContentState = function RawContentState(rawContentState) {
+	  this.selection = {};
+	  this.entityMap = {};
+	  this.blocks = [];
+	  if (rawContentState) {
+	    this.blocks = rawContentState.blocks;
+	    this.entityMap = rawContentState.entityMap;
+	  }
+	};
+
+	// Content Block
+	RawContentState.prototype.addBlock = function () {
+	  var text = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+	  var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _blockTypes.unstyled;
+	  var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+	  var block = {
+	    key: (0, _draftJs.genKey)(),
+	    text: text,
+	    type: type,
+	    depth: 0,
+	    inlineStyleRanges: [],
+	    entityRanges: [],
+	    data: data
+	  };
+
+	  this.blocks.push(block);
+
+	  return this;
+	};
+
+	RawContentState.prototype.setKey = function (key) {
+	  var blockLength = this.blocks.length;
+
+	  this.blocks[blockLength - 1].key = key;
+
+	  return this;
+	};
+
+	RawContentState.prototype.addInlineStyle = function (styles) {
+	  var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+	  var length = arguments[2];
+
+	  var blockLength = this.blocks.length;
+
+	  var block = this.blocks[blockLength - 1];
+
+	  var newRanges = [].concat(styles).map(function (style) {
+	    return {
+	      offset: offset,
+	      length: length >= 0 ? length : block.text.length,
+	      style: style
+	    };
+	  });
+
+	  block.inlineStyleRanges = block.inlineStyleRanges.concat(newRanges);
+	  return this;
+	};
+
+	RawContentState.prototype.addEntity = function (entityData, entityOffset, entityLength) {
+
+	  if (entityOffset !== 0 && !entityOffset || !entityLength) {
+	    console.log('Entity will be applied to the whole block because\n       no entityOffset or entityLength where provided.');
+	  }
+
+	  var blockLength = this.blocks.length;
+
+	  var entityKey = Object.keys(this.entityMap).length;
+
+	  var entity = (0, _createEntity.createEntity)({
+	    data: entityData.data,
+	    type: entityData.type,
+	    mutability: entityData.mutability
+	  });
+
+	  var newEntity = _defineProperty({}, entityKey, entity);
+
+	  var entityRange = {
+	    key: entityKey,
+	    offset: entityOffset || 0,
+	    length: entityLength || this.blocks[blockLength - 1].text.length
+	  };
+
+	  this.entityMap = _extends({}, this.entityMap, newEntity);
+
+	  this.blocks[blockLength - 1].entityRanges.push(entityRange);
+
+	  return this;
+	};
+
+	RawContentState.prototype.setData = function (data) {
+	  var length = this.blocks.length;
+
+	  if (length) {
+	    this.blocks[length - 1].data = data;
+	  }
+
+	  return this;
+	};
+
+	RawContentState.prototype.setDepth = function (depth) {
+	  var length = this.blocks.length;
+
+	  if (length) {
+	    this.blocks[length - 1].depth = depth;
+	  }
+
+	  return this;
+	};
+
+	// Selection
+	RawContentState.prototype.anchorKey = function () {
+	  var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+	  var length = this.blocks.length;
+
+	  if (length) {
+	    this.selection.anchorKey = this.blocks[length - 1].key;
+	    this.selection.anchorOffset = offset;
+	  }
+
+	  return this;
+	};
+
+	RawContentState.prototype.focusKey = function () {
+	  var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+	  var length = this.blocks.length;
+	  if (length) {
+	    this.selection.focusKey = this.blocks[length - 1].key;
+	    this.selection.focusOffset = offset;
+	  }
+
+	  return this;
+	};
+
+	RawContentState.prototype.setAnchorKey = RawContentState.prototype.anchorKey;
+
+	RawContentState.prototype.setFocusKey = RawContentState.prototype.focusKey;
+
+	RawContentState.prototype.collapse = function () {
+	  var offset = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+	  var length = this.blocks.length;
+
+	  if (length) {
+	    this.selection = {
+	      focusKey: this.blocks[length - 1].key,
+	      anchorKey: this.blocks[length - 1].key,
+	      focusOffset: offset,
+	      anchorOffset: offset
+	    };
+	  }
+
+	  return this;
+	};
+
+	RawContentState.prototype.isBackward = function () {
+	  var isBackward = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+	  var length = this.blocks.length;
+
+	  if (length) {
+	    this.selection.isBackward = isBackward;
+	  }
+
+	  return this;
+	};
+
+	// Data conversion
+	RawContentState.prototype.toRawContentState = function () {
+	  return {
+	    entityMap: this.entityMap,
+	    blocks: this.blocks
+	  };
+	};
+
+	RawContentState.prototype.toContentState = function () {
+	  return (0, _draftJs.convertFromRaw)({ entityMap: this.entityMap, blocks: this.blocks });
+	};
+
+	RawContentState.prototype.toEditorState = function (decorator) {
+	  var editorState = _draftJs.EditorState.createWithContent(this.toContentState(this.toRawContentState()), decorator);
+
+	  var selection = editorState.getSelection().merge(this.selection);
+
+	  return _draftJs.EditorState.acceptSelection(editorState, selection);
+	};
+
+	RawContentState.prototype.log = function () {
+	  console.log(JSON.stringify(this.selection, null, 2));
+	  console.log(JSON.stringify(this, null, 2));
+
+	  return this;
+	};
+
+	exports.default = RawContentState;
+
+/***/ },
+/* 328 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var h1 = exports.h1 = 'header-one';
+	var h2 = exports.h2 = 'header-two';
+	var unstyled = exports.unstyled = 'unstyled';
+
+/***/ },
+/* 329 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.createEntity = undefined;
+
+	var _types = __webpack_require__(330);
+
+	var _mutability = __webpack_require__(331);
+
+	var createEntity = exports.createEntity = function createEntity() {
+	  var entity = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	  return {
+	    data: entity.data || {},
+	    type: entity.type || _types.DEFAULT_TYPE,
+	    mutability: [_mutability.MUTABLE, _mutability.IMMUTABLE, _mutability.SEGMENTED].find(function (x) {
+	      return x === entity.mutability;
+	    }) || _mutability.MUTABLE
+	  };
+	};
+
+/***/ },
+/* 330 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var DEFAULT_TYPE = exports.DEFAULT_TYPE = 'DEFAULT_TYPE';
+
+/***/ },
 /* 331 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var MUTABLE = exports.MUTABLE = 'MUTABLE';
+	var IMMUTABLE = exports.IMMUTABLE = 'IMMUTABLE';
+	var SEGMENTED = exports.SEGMENTED = 'SEGMENTED';
+
+/***/ },
+/* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42298,10 +42317,10 @@
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(332);
+	var content = __webpack_require__(333);
 	if (typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(330)(content, {});
+	var update = __webpack_require__(325)(content, {});
 	if (content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if (false) {
@@ -42320,15 +42339,15 @@
 	}
 
 /***/ },
-/* 332 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(329)();
+	exports = module.exports = __webpack_require__(324)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  background: #8d8d8d;\n}\n\n.content {\n  flex: 1 1 auto;\n  margin-left: 270px;\n  margin-right: 20px;\n  margin-top: 10px;\n}\n\n.sidebar {\n  flex: 0 0 250px;\n  width: 250px;\n  padding: 15px;\n  position: fixed;\n  z-index: 2;\n  top: 0;\n  left: 0;\n  background: #0095ff;\n  color: #fff;\n  height: 100vh;\n  overflow-y: scroll;\n}\n\n.input-group {\n  margin-bottom: 20px;\n}\n\n.input-group input {\n  padding: 5px;\n  width: 100%;\n}\n\n.button-group {\n  display: flex;\n}\n\n.button-add {\n  background: #38c500;\n  color: white;\n}\n\n.button-remove {\n  background: #d93114;\n  color: white;\n}\n\n.button-group button {\n  display: flex;\n  flex: 1;\n  justify-content: center;\n  margin: 5px 2px;\n  padding: 5px;\n  border: none;\n  border-radius: 5px;\n}\n\n.editor {\n  border: 1px solid #ccc;\n  background: #fff;\n  padding: 5px;\n}\n\n.editor-header {\n  background: #0095ff;\n  color: #fff;\n  padding: 10px;\n  margin: 0;\n}\n\n.editor-wrapper {\n  margin-bottom: 20px;\n  box-shadow: 0 5px 8px #505050;\n}", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n}\n\n.content {\n  flex: 1 1 auto;\n  margin-left: 270px;\n  margin-right: 20px;\n  margin-top: 10px;\n}\n\n.sidebar {\n  flex: 0 0 250px;\n  width: 250px;\n  padding: 15px;\n  position: fixed;\n  z-index: 2;\n  top: 0;\n  left: 0;\n  height: 100vh;\n  overflow-y: scroll;\n}\n\n.input-group {\n  margin-bottom: 20px;\n}\n\n.input-group input {\n  padding: 5px;\n  width: 100%;\n}\n\n.button-group {\n  display: flex;\n}\n\n.button-add {\n  background: #38c500;\n  color: white;\n}\n\n.button-remove {\n  background: #d93114;\n  color: white;\n}\n\n.button-group button {\n  display: flex;\n  flex: 1;\n  justify-content: center;\n  margin: 5px 2px;\n  padding: 5px;\n  border: none;\n}\n\n.editor {\n  background: #fff;\n  padding: 5px;\n}\n\n.editor-header {\n  color: #333;\n  padding: 10px;\n  margin: 0;\n}\n\n.editor-wrapper {\n  margin-bottom: 20px;\n  box-shadow: 0 2px 8px #888;\n}", ""]);
 
 	// exports
 
