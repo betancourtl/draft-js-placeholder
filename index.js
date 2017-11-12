@@ -11,6 +11,7 @@ import {
   applyPlaceholderEntityToSelection,
   mergePlaceholdersWithExisting,
   findPlaceholderStrategy,
+  removePlaceholderEntities,
   logRaw,
   PlaceholderDecorator,
 } from './src';
@@ -105,8 +106,8 @@ class MyEditor extends React.Component {
   removePlaceholder = (name = '') => {
     const oldPlaceholders = this.state.placeholders;
     const placeholders = oldPlaceholders.filter(x => x.name !== name);
-
-    this.setState({ placeholders });
+    const editorState = removePlaceholderEntities(this.state.editorState, name);
+    this.setState({ placeholders, editorState });
   };
 
   updatePlaceholder = index => value => {

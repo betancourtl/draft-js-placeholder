@@ -1,5 +1,11 @@
 import React from 'react';
-import { EditorState, convertToRaw, Modifier, SelectionState } from 'draft-js';
+import {
+  EditorState,
+  convertToRaw,
+  Modifier,
+  SelectionState,
+  CharacterMetadata,
+} from 'draft-js';
 import getRangesForDraftEntity from 'draft-js/lib/getRangesForDraftEntity';
 
 const PLACEHOLDER_TYPE = 'placeholder';
@@ -277,3 +283,37 @@ export const mergePlaceholdersWithExisting = (editorState, placeholders) => {
   }, placeholders);
 };
 
+export const removePlaceholderEntities = (editorState, name) => {
+  const contentState = editorState.getCurrentContent();
+  const blockMap = contentState.getBlockMap();
+  const newBlocks = blockMap.map(block => {
+    let sliceStart = 0;
+    let sliceEnd = block.getLength();
+
+    // Get the characters of the current block
+    let chars = block.getCharacterList();
+    let currentChar;
+    while (sliceStart < sliceEnd) {
+      currentChar = chars.get(sliceStart);
+      // returns the new character
+      // returns a key only if the data was updated.
+      const entityKey = currentChar.getEntity();
+      const entityExists = entityKey && contentState.getEntity(entityKey).getData()[PLACEHOLDER_TYPE].name === name;
+      console.log('entityExists :\n', entityExists);
+      const char = entityExists
+        ? CharacterMetadata.applyEntity(currentChar, null)
+        : currentChar;
+      chars = chars.set(sliceStart, char);
+      sliceStart += 1;
+    }
+
+    return block.set('characterList', chars);
+  });
+
+  const newContentState = contentState.merge({
+    blockMap: blockMap.merge(newBlocks),
+  });
+
+  const newEditorState = EditorState.push(editorState, newContentState, 'apply-entity');
+  return EditorState.set(newEditorState, { forceSelection: false });
+};
