@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState, convertToRaw, Modifier, SelectionState } from 'draft-js';
+import getRangesForDraftEntity from 'draft-js/lib/getRangesForDraftEntity';
 
 const PLACEHOLDER_TYPE = 'placeholder';
 const PLACEHOLDER_MUTABILITY = 'IMMUTABLE';
@@ -149,9 +150,71 @@ export const PlaceholderDecorator = props => {
 export const applyPlaceholderEntityToSelection = (name, value, editorState) => {
   const contentState = editorState.getCurrentContent();
   const selection = editorState.getSelection();
+  const startOffset = selection.getStartOffset();
+  const startKey = selection.getStartKey();
+  const block = contentState.getBlockForKey(startKey);
   const { type, mutability, data } = createPlaceholderEntity(createPlaceholder(name, value));
   const newContentState = contentState.createEntity(type, mutability, data);
   const key = newContentState.getLastCreatedEntityKey();
+
+  // if selection is collapsed
+  if (!selection.isCollapsed()) {
+    console.log('not collapsed');
+    const editorState1 = EditorState.push(
+      editorState,
+      Modifier.applyEntity(newContentState, selection, key),
+      'apply-entity'
+    );
+
+    const collapsedSelection = selection.merge({
+      anchorKey: startKey,
+      focusKey: startKey,
+      anchorOffset: selection.getStartOffset(),
+      focusOffset: selection.getStartOffset(),
+    });
+
+    return EditorState.forceSelection(editorState1, collapsedSelection);
+  }
+
+  const entityKey = block.getEntityAt(startOffset);
+  if (!entityKey) {
+    console.log('not entity exists');
+    return EditorState.push(
+      editorState,
+      Modifier.applyEntity(newContentState, selection, key),
+      'apply-entity'
+    );
+  }
+
+  const ranges = getRangesForDraftEntity(block, entityKey);
+  const range = ranges.find(({ start, end }) => startOffset >= start && startOffset <= end);
+
+  if (range) {
+    console.log('range exists');
+    const newSelection = selection.merge({
+      anchorKey: startKey,
+      focusKey: startKey,
+      anchorOffset: range.start,
+      focusOffset: range.end,
+    });
+
+    const newEditorState = EditorState.push(
+      editorState,
+      Modifier.applyEntity(newContentState, newSelection, key),
+      'apply-entity'
+    );
+
+    const collapsedSelection = newSelection.merge({
+      anchorKey: startKey,
+      focusKey: startKey,
+      anchorOffset: range.start,
+      focusOffset: range.start,
+    });
+
+    return EditorState.forceSelection(newEditorState, collapsedSelection);
+  }
+
+  console.log('no range exists');
   return EditorState.push(
     editorState,
     Modifier.applyEntity(newContentState, selection, key),

@@ -118,7 +118,7 @@ class MyEditor extends React.Component {
           applyPlaceholder={this.applyPlaceholder}
         />
         <div
-          style={{ marginTop: '40px' }}
+          style={{ marginTop: '40px', border: '1px solid #ccc', background: 'white' }}
           onDoubleClick={() => logRaw(this.state.editorState)}
           onClick={this.focus}
         >
