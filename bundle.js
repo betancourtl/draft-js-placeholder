@@ -41161,6 +41161,7 @@
 	  };
 	};
 
+	// updates the contentState entity with the new placeholder data
 	var replacePlaceholder = exports.replacePlaceholder = function replacePlaceholder(contentState) {
 	  var placeholders = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 	  var char = arguments[2];
@@ -41188,6 +41189,7 @@
 	  return char;
 	};
 
+	// finds the ranges for placeholders with entity entity type
 	var findPlaceholderRanges = exports.findPlaceholderRanges = function findPlaceholderRanges(block, contentState) {
 	  var ranges = [];
 	  var key = null;
@@ -41202,6 +41204,7 @@
 	  return ranges;
 	};
 
+	// Replaces the placeholders with the provided placeholders.
 	var replacePlaceholders = exports.replacePlaceholders = function replacePlaceholders(editorState) {
 	  var placeholders = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
@@ -41277,6 +41280,7 @@
 	  return _draftJs.EditorState.set(newEditorState, { forceSelection: false });
 	};
 
+	// Decorator component
 	var PlaceholderDecorator = exports.PlaceholderDecorator = function PlaceholderDecorator(props) {
 	  return _react2.default.createElement(
 	    'span',
@@ -41294,6 +41298,7 @@
 	  );
 	};
 
+	// Applies a placeholder to a selection
 	var applyPlaceholderEntityToSelection = exports.applyPlaceholderEntityToSelection = function applyPlaceholderEntityToSelection(name, value, editorState) {
 	  var contentState = editorState.getCurrentContent();
 	  var selection = editorState.getSelection();
@@ -41363,6 +41368,7 @@
 	  return _draftJs.EditorState.push(editorState, _draftJs.Modifier.applyEntity(newContentState, selection, key), 'apply-entity');
 	};
 
+	// Strategy for the decorator
 	var findPlaceholderStrategy = exports.findPlaceholderStrategy = function findPlaceholderStrategy(contentBlock, callback, contentState) {
 	  contentBlock.findEntityRanges(function (character) {
 	    var entityKey = character.getEntity();
@@ -41374,6 +41380,7 @@
 	  }, callback);
 	};
 
+	// Finds existing placeholders in an a block
 	var findBlockPlaceholders = exports.findBlockPlaceholders = function findBlockPlaceholders(contentState) {
 	  return function (acc, block) {
 	    var placeholders = {};
@@ -41392,6 +41399,7 @@
 	  };
 	};
 
+	// Finds placeholders in an editorState
 	var findAllPlaceholders = exports.findAllPlaceholders = function findAllPlaceholders(editorState) {
 	  var contentState = editorState.getCurrentContent();
 	  var reduceFn = findBlockPlaceholders(contentState);
@@ -41403,6 +41411,7 @@
 	  });
 	};
 
+	// Merges placeholders passed down from props with new ones.
 	var mergePlaceholdersWithExisting = exports.mergePlaceholdersWithExisting = function mergePlaceholdersWithExisting(editorState, placeholders) {
 	  var existing = findAllPlaceholders(editorState);
 
@@ -41416,6 +41425,8 @@
 	  }, placeholders);
 	};
 
+	// removes placeholder entities if a specific type. This removes all of the
+	// entities that have a specific placeholder name
 	var removePlaceholderEntities = exports.removePlaceholderEntities = function removePlaceholderEntities(editorState, name) {
 	  var contentState = editorState.getCurrentContent();
 	  var blockMap = contentState.getBlockMap();
